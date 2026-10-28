@@ -34,11 +34,11 @@ android {
         create("dev") {
             dimension = "env"
             applicationIdSuffix = ".dev"
-            resValue("string", "app_name", "Moonlight Dev")
+            manifestPlaceholders["appName"] = "Moonlight Dev"
         }
         create("prod") {
             dimension = "env"
-            resValue("string", "app_name", "Moonlight")
+            manifestPlaceholders["appName"] = "Moonlight"
         }
     }
 
