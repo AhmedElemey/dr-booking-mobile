@@ -26,7 +26,10 @@ class HomeScreen extends ConsumerWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(l10n.homeHeadline, style: Theme.of(context).textTheme.headlineSmall),
+            Text(
+              l10n.homeHeadline,
+              style: Theme.of(context).textTheme.headlineSmall,
+            ),
             const SizedBox(height: 12),
             Text(l10n.homeUnderConstruction),
           ],

@@ -9,7 +9,10 @@ import 'core/config/env_provider.dart';
 void bootstrap(Env env) {
   WidgetsFlutterBinding.ensureInitialized();
   runApp(
-    ProviderScope(overrides: [envProvider.overrideWithValue(env)], child: const MoonlightApp()),
+    ProviderScope(
+      overrides: [envProvider.overrideWithValue(env)],
+      child: const MoonlightApp(),
+    ),
   );
 }
 

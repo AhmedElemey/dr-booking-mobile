@@ -26,7 +26,9 @@ void main() {
     expect(find.text('ابحث عن طبيب أسنان واحجز في دقائق'), findsOneWidget);
   });
 
-  testWidgets('language toggle switches to English, left to right', (tester) async {
+  testWidgets('language toggle switches to English, left to right', (
+    tester,
+  ) async {
     await pumpApp(tester);
 
     await tester.tap(find.byKey(const Key('switchLanguage')));

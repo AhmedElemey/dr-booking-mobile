@@ -5,7 +5,9 @@ import '../../features/home/presentation/home_screen.dart';
 
 final routerProvider = Provider<GoRouter>((ref) {
   final router = GoRouter(
-    routes: [GoRoute(path: '/', builder: (context, state) => const HomeScreen())],
+    routes: [
+      GoRoute(path: '/', builder: (context, state) => const HomeScreen()),
+    ],
   );
   ref.onDispose(router.dispose);
   return router;
