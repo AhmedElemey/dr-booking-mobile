@@ -72,6 +72,8 @@ void main() {
 
         expect(await store.read(), isNull);
         expect(adapter.requests.single.path, '/auth/logout');
+        // The API revokes the token family named in the body.
+        expect(adapter.requests.single.data, {'refreshToken': 'r'});
       },
     );
   });

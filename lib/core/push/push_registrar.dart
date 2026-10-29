@@ -16,7 +16,7 @@ class PushRegistrar {
   StreamSubscription<String>? _refreshes;
 
   String get _platform =>
-      defaultTargetPlatform == TargetPlatform.iOS ? 'ios' : 'android';
+      defaultTargetPlatform == TargetPlatform.iOS ? 'Ios' : 'Android';
 
   Future<void> onLogin() async {
     final push = _ref.read(pushServiceProvider);

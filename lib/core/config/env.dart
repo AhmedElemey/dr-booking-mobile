@@ -17,8 +17,12 @@ class Env {
 
   static const dev = Env(
     flavor: AppFlavor.dev,
-    // Android emulator alias for the host machine's localhost.
-    apiBaseUrl: 'http://10.0.2.2:5267',
+    // Android emulator alias for the host machine's localhost; override with
+    // --dart-define=API_BASE_URL=http://localhost:5267 for web or iOS.
+    apiBaseUrl: String.fromEnvironment(
+      'API_BASE_URL',
+      defaultValue: 'http://10.0.2.2:5267',
+    ),
   );
 
   // Set to the production API origin before the first prod release (M6).

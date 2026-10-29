@@ -54,7 +54,11 @@ class AuthRepository {
   /// server cannot be reached, so logout always works.
   Future<void> logout() async {
     try {
-      await _dio.post<void>('/auth/logout');
+      final tokens = await _tokens.read();
+      await _dio.post<void>(
+        '/auth/logout',
+        data: {'refreshToken': tokens?.refreshToken},
+      );
     } on DioException {
       // Nothing to do: the server expires the family on its own.
     } finally {

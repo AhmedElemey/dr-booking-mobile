@@ -7,6 +7,7 @@ Patient app for Moonlight, a dentist reservation platform. Flutter with Riverpod
 ```bash
 flutter pub get
 flutter run --flavor dev -t lib/main_dev.dart     # com.moonlight.app.dev
+flutter run -d chrome -t lib/main_dev.dart --dart-define=API_BASE_URL=http://localhost:5267   # web against a local API
 flutter run --flavor prod -t lib/main_prod.dart   # com.moonlight.app
 ```
 
