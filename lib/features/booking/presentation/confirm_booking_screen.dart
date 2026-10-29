@@ -79,13 +79,13 @@ class _ConfirmBookingScreenState extends ConsumerState<ConfirmBookingScreen> {
     final draft = ref.watch(bookingDraftProvider);
     if (draft == null) return const Scaffold();
     final isGuest = ref.watch(authControllerProvider).value == null;
-    final when = ClinicTime.dateAndTime(
-      ClinicTime.parseTime(
-        draft.slot.local,
-        onDate: ClinicTime.parseDate(draft.slotDate),
-      ),
-      locale,
+    final slotLocal = ClinicTime.parseTime(
+      draft.slot.local,
+      onDate: ClinicTime.parseDate(draft.slotDate),
     );
+    // Two lines: mixing a date and a time in one RTL run reorders the digits.
+    final when =
+        '${ClinicTime.date(slotLocal, locale)}\n${ClinicTime.time(slotLocal, locale)}';
     final doctor = draft.doctor;
 
     return Scaffold(
