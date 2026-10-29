@@ -91,7 +91,7 @@ class _PickSlotScreenState extends ConsumerState<PickSlotScreen> {
             child: Text(
               summary == null
                   ? l10n.continueAction
-                  : '${l10n.continueAction} · $summary',
+                  : '${l10n.continueAction} — $summary',
             ),
           ),
         ),

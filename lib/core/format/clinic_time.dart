@@ -20,7 +20,7 @@ abstract final class ClinicTime {
       DateFormat.jm(locale).format(local);
 
   static String dateAndTime(DateTime local, String locale) =>
-      '${date(local, locale)} · ${time(local, locale)}';
+      '${date(local, locale)} — ${time(local, locale)}';
 
   /// `HH:mm` as sent in a slot's `local` field.
   static DateTime parseTime(String hhmm, {DateTime? onDate}) {

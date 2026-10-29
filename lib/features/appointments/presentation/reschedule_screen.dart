@@ -104,7 +104,7 @@ class _RescheduleScreenState extends ConsumerState<RescheduleScreen> {
                       : Text(
                           slot == null || date == null
                               ? l10n.rescheduleConfirm
-                              : '${l10n.rescheduleConfirm} · '
+                              : '${l10n.rescheduleConfirm} — '
                                     '${ClinicTime.dateAndTime(ClinicTime.parseTime(slot.local, onDate: ClinicTime.parseDate(date)), locale)}',
                         ),
                 ),

@@ -36,7 +36,7 @@ class DoctorCard extends StatelessWidget {
                     Text(doctor.name, style: theme.textTheme.titleMedium),
                     if (details.isNotEmpty)
                       Text(
-                        details.join(' · '),
+                        details.join(' — '),
                         style: theme.textTheme.bodyMedium?.copyWith(
                           color: theme.colorScheme.onSurfaceVariant,
                         ),
