@@ -6,6 +6,7 @@ import 'core/config/env_provider.dart';
 import 'core/l10n/generated/app_localizations.dart';
 import 'core/l10n/locale_controller.dart';
 import 'core/router/app_router.dart';
+import 'core/theme/app_theme.dart';
 
 class MoonlightApp extends ConsumerWidget {
   const MoonlightApp({super.key});
@@ -16,7 +17,7 @@ class MoonlightApp extends ConsumerWidget {
     return MaterialApp.router(
       onGenerateTitle: (context) => AppLocalizations.of(context).appTitle,
       debugShowCheckedModeBanner: env.flavor == AppFlavor.dev,
-      theme: ThemeData(colorSchemeSeed: const Color(0xFF3F51B5)),
+      theme: buildTheme(),
       locale: ref.watch(localeProvider),
       supportedLocales: AppLocalizations.supportedLocales,
       localizationsDelegates: AppLocalizations.localizationsDelegates,

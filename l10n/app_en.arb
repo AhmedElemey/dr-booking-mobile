@@ -1,7 +1,174 @@
 {
   "@@locale": "en",
   "appTitle": "Moonlight",
+  "switchLanguage": "العربية",
+  "retry": "Try again",
+  "cancel": "Cancel",
+  "continueAction": "Continue",
+  "save": "Save",
+  "minutesShort": "{count} min",
+  "@minutesShort": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "priceEgp": "{amount} EGP",
+  "@priceEgp": {
+    "placeholders": {
+      "amount": {
+        "type": "num",
+        "format": "decimalPattern"
+      }
+    }
+  },
+  "navSearch": "Find a doctor",
+  "navAppointments": "Appointments",
+  "navSettings": "Settings",
+  "chooseLanguageTitle": "Choose your language",
+  "chooseLanguageSubtitle": "You can change it any time in settings.",
+  "phoneTitle": "Welcome to Moonlight",
+  "phoneSubtitle": "Enter your mobile number and we will text you a code.",
+  "phoneLabel": "Mobile number",
+  "phoneHint": "01012345678",
+  "phoneInvalid": "Enter a valid Egyptian mobile number.",
+  "sendCode": "Send code",
+  "continueAsGuest": "Continue as guest",
+  "otpTitle": "Enter the code",
+  "otpSubtitle": "We sent a 6-digit code to {phone}.",
+  "@otpSubtitle": {
+    "placeholders": {
+      "phone": {
+        "type": "String"
+      }
+    }
+  },
+  "otpLabel": "Verification code",
+  "otpInvalid": "Enter the 6-digit code.",
+  "verify": "Verify",
+  "resendIn": "Resend code in {seconds}s",
+  "@resendIn": {
+    "placeholders": {
+      "seconds": {
+        "type": "int"
+      }
+    }
+  },
+  "resendCode": "Resend code",
+  "changeNumber": "Change number",
+  "completeProfileTitle": "One last thing",
+  "completeProfileSubtitle": "Tell the clinic who to expect.",
+  "fullNameLabel": "Full name",
+  "nameRequired": "Please enter your name.",
+  "finish": "Finish",
   "homeHeadline": "Find a dentist and book in minutes",
-  "homeUnderConstruction": "The Moonlight app is under construction.",
-  "switchLanguage": "العربية"
+  "searchHint": "Search by doctor name",
+  "cityLabel": "City",
+  "allCities": "All cities",
+  "specialtiesTitle": "Specialties",
+  "allDoctors": "All dentists",
+  "doctorsTitle": "Dentists",
+  "noDoctorsFound": "No dentists match your search.",
+  "clearFilters": "Clear filters",
+  "yearsExperience": "{count} years of experience",
+  "@yearsExperience": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "consultationFee": "Consultation: {fee}",
+  "@consultationFee": {
+    "placeholders": {
+      "fee": {
+        "type": "String"
+      }
+    }
+  },
+  "aboutSection": "About",
+  "clinicSection": "Clinic",
+  "servicesSection": "Treatments",
+  "bookAppointment": "Book an appointment",
+  "pickSlotTitle": "Pick a time",
+  "noAvailability": "No available times right now. Please check again later.",
+  "clinicTimeNote": "Times are shown in clinic time ({timezone}).",
+  "@clinicTimeNote": {
+    "placeholders": {
+      "timezone": {
+        "type": "String"
+      }
+    }
+  },
+  "confirmTitle": "Confirm booking",
+  "doctorLabel": "Dentist",
+  "clinicLabel": "Clinic",
+  "whenLabel": "When",
+  "visitType": "Visit type (optional)",
+  "noteLabel": "Note for the clinic (optional)",
+  "payAtClinic": "Pay at the clinic",
+  "payAtClinicDetail": "Nothing to pay now. Prices are shown for information only.",
+  "confirmBooking": "Confirm booking",
+  "signInToBook": "Sign in to confirm",
+  "signInToBookHint": "Browse freely. We only need your number to confirm.",
+  "bookingConfirmedTitle": "You are booked!",
+  "bookingConfirmedSubtitle": "We will remind you the day before.",
+  "addToCalendar": "Add to calendar",
+  "viewMyAppointments": "View my appointments",
+  "backToHome": "Back to home",
+  "appointmentsTitle": "My appointments",
+  "upcomingTab": "Upcoming",
+  "pastTab": "Past",
+  "noUpcoming": "No upcoming appointments.",
+  "noPast": "No past appointments.",
+  "statusConfirmed": "Confirmed",
+  "statusCancelled": "Cancelled",
+  "statusCompleted": "Completed",
+  "statusNoShow": "Missed",
+  "signInToSeeAppointments": "Sign in to see and manage your appointments.",
+  "signIn": "Sign in",
+  "appointmentDetailsTitle": "Appointment",
+  "callClinic": "Call clinic",
+  "getDirections": "Directions",
+  "cancelAppointment": "Cancel appointment",
+  "cancelConfirmTitle": "Cancel this appointment?",
+  "cancelConfirmBody": "The time will be released for other patients.",
+  "cancelReasonHint": "Reason (optional)",
+  "keepAppointment": "Keep it",
+  "appointmentCancelled": "Appointment cancelled.",
+  "rescheduleAppointment": "Reschedule",
+  "rescheduleTitle": "Choose a new time",
+  "rescheduleConfirm": "Move appointment",
+  "appointmentRescheduled": "Appointment moved.",
+  "cancelledByPatient": "Cancelled by you",
+  "cancelledByClinic": "Cancelled by the clinic",
+  "reasonLabel": "Reason",
+  "yourNote": "Your note",
+  "settingsTitle": "Settings",
+  "accountSection": "Account",
+  "languageSection": "Language",
+  "arabic": "العربية",
+  "english": "English",
+  "editName": "Edit name",
+  "logout": "Log out",
+  "logoutConfirmTitle": "Log out?",
+  "guestSettingsPrompt": "Sign in to book and manage appointments.",
+  "loggedOut": "You are logged out.",
+  "errNetwork": "Can't reach Moonlight. Check your connection and try again.",
+  "errUnknown": "Something went wrong. Please try again.",
+  "errServer": "Our servers had a problem. Please try again shortly.",
+  "errUnauthorized": "Your session ended. Please sign in again.",
+  "errForbidden": "This account is for clinic staff. Please use the Moonlight dashboard.",
+  "errNotFound": "We couldn't find that.",
+  "errValidation": "Please check the details and try again.",
+  "errOtpInvalid": "That code is incorrect.",
+  "errOtpExpired": "That code has expired. Request a new one.",
+  "errRateLimited": "Too many attempts. Please wait a bit and try again.",
+  "errSlotTaken": "Someone just booked this time. Please pick another one.",
+  "errSlotUnavailable": "This time is no longer available. Please pick another one.",
+  "errCancelWindow": "It's too close to the appointment to change it here. Please call the clinic.",
+  "errInvalidTransition": "This appointment can't be changed anymore.",
+  "errBookingLimit": "You have reached the limit of upcoming bookings (or already have one with this dentist that day).",
+  "errPhoneInUse": "This number belongs to another kind of account."
 }
