@@ -1,6 +1,5 @@
 {
   "@@locale": "ar",
-  "appTitle": "مون لايت",
   "switchLanguage": "English",
   "retry": "حاول مرة أخرى",
   "cancel": "إلغاء",
@@ -13,7 +12,14 @@
   "navSettings": "الإعدادات",
   "chooseLanguageTitle": "اختر لغتك",
   "chooseLanguageSubtitle": "يمكنك تغييرها في أي وقت من الإعدادات.",
-  "phoneTitle": "أهلًا بك في مون لايت",
+  "phoneTitle": "أهلًا بك في {brand}",
+  "@phoneTitle": {
+    "placeholders": {
+      "brand": {
+        "type": "String"
+      }
+    }
+  },
   "phoneSubtitle": "أدخل رقم هاتفك المحمول وسنرسل لك رمز التحقق.",
   "phoneLabel": "رقم الهاتف المحمول",
   "phoneHint": "01012345678",
@@ -105,11 +111,25 @@
   "logoutConfirmTitle": "تسجيل الخروج؟",
   "guestSettingsPrompt": "سجّل الدخول لحجز المواعيد وإدارتها.",
   "loggedOut": "تم تسجيل الخروج.",
-  "errNetwork": "تعذّر الاتصال بمون لايت. تحقق من الإنترنت وحاول مرة أخرى.",
+  "errNetwork": "تعذّر الاتصال بـ{brand}. تحقق من الإنترنت وحاول مرة أخرى.",
+  "@errNetwork": {
+    "placeholders": {
+      "brand": {
+        "type": "String"
+      }
+    }
+  },
   "errUnknown": "حدث خطأ ما. حاول مرة أخرى.",
   "errServer": "حدثت مشكلة في الخادم. حاول بعد قليل.",
   "errUnauthorized": "انتهت الجلسة. سجّل الدخول مرة أخرى.",
-  "errForbidden": "هذا الحساب خاص بالعيادات. من فضلك استخدم لوحة تحكم مون لايت.",
+  "errForbidden": "هذا الحساب خاص بالعيادات. من فضلك استخدم لوحة تحكم {brand}.",
+  "@errForbidden": {
+    "placeholders": {
+      "brand": {
+        "type": "String"
+      }
+    }
+  },
   "errNotFound": "لم نعثر على المطلوب.",
   "errValidation": "تحقق من البيانات وحاول مرة أخرى.",
   "errOtpInvalid": "الرمز غير صحيح.",
@@ -120,5 +140,20 @@
   "errCancelWindow": "اقترب موعد الحجز ولا يمكن تعديله هنا. من فضلك اتصل بالعيادة.",
   "errInvalidTransition": "لا يمكن تعديل هذا الموعد بعد الآن.",
   "errBookingLimit": "وصلت للحد الأقصى من الحجوزات القادمة (أو لديك حجز مع هذا الطبيب في نفس اليوم).",
-  "errPhoneInUse": "هذا الرقم مرتبط بنوع آخر من الحسابات."
+  "errPhoneInUse": "هذا الرقم مرتبط بنوع آخر من الحسابات.",
+  "appUnavailableTitle": "التطبيق غير متاح حاليًا",
+  "appUnavailableBody": "{brand} غير متاح عبر التطبيق في الوقت الحالي. من فضلك استخدم موقعنا ({website}) أو اتصل بالعيادة.",
+  "callToChangeAppointment": "لتعديل هذا الموعد أو إلغائه، من فضلك اتصل بالعيادة.",
+  "errFeatureDisabled": "هذه الخدمة غير متاحة حاليًا. من فضلك اتصل بالعيادة.",
+  "errSelfServiceDisabled": "لتعديل هذا الموعد أو إلغائه، من فضلك اتصل بالعيادة.",
+  "@appUnavailableBody": {
+    "placeholders": {
+      "brand": {
+        "type": "String"
+      },
+      "website": {
+        "type": "String"
+      }
+    }
+  }
 }

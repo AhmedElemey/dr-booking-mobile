@@ -4,6 +4,8 @@ import 'dart:typed_data';
 
 import 'package:dio/dio.dart';
 
+import '../config/brand.g.dart';
+
 /// Demo-mode backend: a stateful, in-memory implementation of the endpoints
 /// the patient app uses (spec §4), served through Dio's adapter so the real
 /// repositories, interceptor and screens run unchanged.
@@ -24,6 +26,10 @@ class MockApiAdapter implements HttpClientAdapter {
   static const _utcOffset = Duration(hours: 2);
 
   final Duration latency;
+
+  /// The clinic's feature switches served by `GET /features`. Starts from the
+  /// brand defaults; change entries to preview a clinic with features off.
+  final Map<String, bool> features = Map.of(Brand.defaultFeatures.toJson());
 
   // --- fixtures --------------------------------------------------------
 
@@ -159,6 +165,9 @@ class MockApiAdapter implements HttpClientAdapter {
       's_${doctor}_${_ymd(local).replaceAll('-', '')}_'
       '${_two(local.hour)}${_two(local.minute)}';
 
+  static String _hex(int argb) =>
+      '#${(argb & 0xFFFFFF).toRadixString(16).padLeft(6, '0').toUpperCase()}';
+
   static String _two(int n) => n.toString().padLeft(2, '0');
   static String _ymd(DateTime d) => '${d.year}-${_two(d.month)}-${_two(d.day)}';
   static String _iso(DateTime utc) =>
@@ -234,6 +243,34 @@ class MockApiAdapter implements HttpClientAdapter {
     String lang,
   ) {
     final q = options.queryParameters;
+
+    // Clinic identity and feature switches.
+    if (method == 'GET' && path == '/features') {
+      return (
+        200,
+        {
+          'features': features,
+          'source': 'defaults',
+          'updatedAt': _iso(DateTime.now().toUtc()),
+        },
+      );
+    }
+    if (method == 'GET' && path == '/branding') {
+      return (
+        200,
+        {
+          'slug': Brand.slug,
+          'name': {'ar': Brand.nameAr, 'en': Brand.nameEn},
+          'tagline': {'ar': Brand.taglineAr, 'en': Brand.taglineEn},
+          'colors': {
+            'primary': _hex(Brand.primary.toARGB32()),
+            'accent': _hex(Brand.accent.toARGB32()),
+          },
+          'supportPhone': Brand.supportPhone,
+          'logoUrl': '/api/v1/branding/logo',
+        },
+      );
+    }
 
     // Public catalog.
     if (method == 'GET' && path == '/specialties') {

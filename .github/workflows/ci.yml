@@ -22,6 +22,12 @@ jobs:
       # Format check runs before pub get, which generates lib/core/l10n/generated/.
       - run: dart format --set-exit-if-changed .
       - run: flutter pub get
+      # The committed brand/platform files must match clinic.config.json.
+      # Pushes to main are handled by apply-brand.yml, which commits the result.
+      - if: github.event_name == 'pull_request'
+        run: dart run tool/apply_brand.dart
+      - if: github.event_name == 'pull_request'
+        run: git diff --exit-code
       - run: flutter analyze
       - run: flutter test
       - run: flutter build apk --debug --flavor dev -t lib/main_dev.dart

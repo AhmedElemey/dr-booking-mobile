@@ -1,0 +1,109 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://moonlight.example/schemas/clinic.config.schema.json",
+  "title": "Clinic configuration",
+  "description": "A clinic's identity and default feature switches. Shared by every Moonlight repo.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "slug",
+    "name",
+    "tagline",
+    "colors",
+    "logo",
+    "supportPhone",
+    "website",
+    "mobile",
+    "console",
+    "features"
+  ],
+  "$defs": {
+    "localized": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["ar", "en"],
+      "properties": {
+        "ar": { "type": "string", "minLength": 1, "maxLength": 200 },
+        "en": { "type": "string", "minLength": 1, "maxLength": 200 }
+      }
+    },
+    "hexColor": { "type": "string", "pattern": "^#[0-9A-Fa-f]{6}$" }
+  },
+  "properties": {
+    "$schema": { "type": "string" },
+    "slug": {
+      "type": "string",
+      "maxLength": 40,
+      "pattern": "^[a-z0-9]+(-[a-z0-9]+)*$"
+    },
+    "name": { "$ref": "#/$defs/localized" },
+    "tagline": { "$ref": "#/$defs/localized" },
+    "colors": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["primary", "accent"],
+      "properties": {
+        "primary": { "$ref": "#/$defs/hexColor" },
+        "accent": { "$ref": "#/$defs/hexColor" }
+      }
+    },
+    "logo": { "type": "string", "minLength": 1 },
+    "supportPhone": { "type": "string", "pattern": "^\\+?[0-9]{6,15}$" },
+    "website": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["domain"],
+      "properties": {
+        "domain": { "type": "string", "minLength": 1, "maxLength": 253 }
+      }
+    },
+    "mobile": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["androidApplicationId", "iosBundleId"],
+      "properties": {
+        "androidApplicationId": {
+          "type": "string",
+          "pattern": "^[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*)+$"
+        },
+        "iosBundleId": {
+          "type": "string",
+          "pattern": "^[A-Za-z0-9-]+(\\.[A-Za-z0-9-]+)+$"
+        }
+      }
+    },
+    "console": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["url", "clinicId"],
+      "properties": {
+        "url": { "type": "string" },
+        "clinicId": { "type": "string" }
+      }
+    },
+    "features": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "mobileApp",
+        "website",
+        "guestBrowsing",
+        "patientSelfService",
+        "pushReminders",
+        "smsNotifications",
+        "englishLanguage",
+        "multiBranch"
+      ],
+      "properties": {
+        "mobileApp": { "type": "boolean" },
+        "website": { "type": "boolean" },
+        "guestBrowsing": { "type": "boolean" },
+        "patientSelfService": { "type": "boolean" },
+        "pushReminders": { "type": "boolean" },
+        "smsNotifications": { "type": "boolean" },
+        "englishLanguage": { "type": "boolean" },
+        "multiBranch": { "type": "boolean" }
+      }
+    }
+  }
+}

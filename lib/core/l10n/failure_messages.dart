@@ -1,4 +1,5 @@
 import '../network/failure.dart';
+import '../config/brand_l10n.dart';
 import 'generated/app_localizations.dart';
 
 extension FailureMessage on AppLocalizations {
@@ -7,12 +8,16 @@ extension FailureMessage on AppLocalizations {
   String failureMessage(Object error) {
     if (error is! Failure) return errUnknown;
     return switch (error.code) {
-      Failure.network => errNetwork,
+      Failure.network => errNetwork(brandName),
       'VALIDATION_FAILED' => errValidation,
       'OTP_INVALID' => errOtpInvalid,
       'OTP_EXPIRED' => errOtpExpired,
       'UNAUTHORIZED' => errUnauthorized,
-      'FORBIDDEN' => errForbidden,
+      'FORBIDDEN' => errForbidden(brandName),
+      'FEATURE_DISABLED' =>
+        error.feature == 'patientSelfService'
+            ? errSelfServiceDisabled
+            : errFeatureDisabled,
       'NOT_FOUND' => errNotFound,
       'SLOT_TAKEN' => errSlotTaken,
       'SLOT_UNAVAILABLE' => errSlotUnavailable,

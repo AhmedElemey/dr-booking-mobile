@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/l10n/generated/app_localizations.dart';
 import '../../../core/l10n/locale_controller.dart';
 import '../../auth/presentation/auth_controller.dart';
+import '../../clinic_config/presentation/features_controller.dart';
 import '../data/profile_repository.dart';
 
 /// Changes the app language, and tells the server when someone is signed in so
@@ -23,6 +24,9 @@ class LanguageToggleButton extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
+    if (!ref.watch(featuresProvider.select((f) => f.englishLanguage))) {
+      return const SizedBox.shrink();
+    }
     final l10n = AppLocalizations.of(context);
     final isArabic = ref.watch(localeProvider).languageCode == 'ar';
     return TextButton(

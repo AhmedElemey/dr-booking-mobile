@@ -8,6 +8,7 @@ class Failure implements Exception {
     required this.code,
     this.statusCode,
     this.detail,
+    this.feature,
     this.fieldErrors = const {},
   });
 
@@ -19,6 +20,9 @@ class Failure implements Exception {
 
   /// Server-localized message; only a fallback for codes the app does not know.
   final String? detail;
+
+  /// For `FEATURE_DISABLED`: the feature switch that is off.
+  final String? feature;
   final Map<String, List<String>> fieldErrors;
 
   factory Failure.fromDio(DioException error) {
@@ -33,6 +37,7 @@ class Failure implements Exception {
         code: data['code'] as String,
         statusCode: status,
         detail: data['detail'] as String?,
+        feature: data['feature'] as String?,
         fieldErrors: _fieldErrors(data['errors']),
       );
     }

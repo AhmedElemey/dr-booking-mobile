@@ -13,6 +13,8 @@ import '../../features/booking/presentation/booking_providers.dart';
 import '../../features/booking/presentation/booking_success_screen.dart';
 import '../../features/booking/presentation/confirm_booking_screen.dart';
 import '../../features/booking/presentation/pick_slot_screen.dart';
+import '../../features/clinic_config/presentation/feature_unavailable_screen.dart';
+import '../../features/clinic_config/presentation/features_controller.dart';
 import '../../features/doctor/presentation/doctor_profile_screen.dart';
 import '../../features/home/presentation/home_screen.dart';
 import '../../features/profile/presentation/language_select_screen.dart';
@@ -25,7 +27,10 @@ import 'app_shell.dart';
 
 /// Whether a location is only for signed-in patients. Everything up to the
 /// confirm step is open to guests; the confirm screen asks for login itself.
-bool requiresAuth(String location) => location.startsWith('/appointments');
+/// When the clinic turns guest browsing off, only the login pages are open.
+bool requiresAuth(String location, {bool guestBrowsing = true}) =>
+    location.startsWith('/appointments') ||
+    (!guestBrowsing && !_isLogin(location));
 
 bool _isLogin(String location) =>
     location == '/login' || location == '/login/otp';
@@ -43,10 +48,20 @@ final routerProvider = Provider<GoRouter>((ref) {
   // Re-run the redirect whenever the session changes (login, logout, expiry).
   final authChanged = ValueNotifier<int>(0);
   ref.listen(authControllerProvider, (_, _) => authChanged.value++);
+  // ...and whenever the clinic's feature switches change.
+  ref.listen(featuresProvider, (_, _) => authChanged.value++);
 
   String? redirect(BuildContext context, GoRouterState state) {
     final location = state.matchedLocation;
-    if (ref.read(localSettingsProvider).languageCode == null) {
+    final features = ref.read(featuresProvider);
+    if (!features.mobileApp) {
+      return location == '/unavailable' ? null : '/unavailable';
+    }
+    if (location == '/unavailable') return '/';
+    if (!features.englishLanguage && location == '/language') return '/';
+    // Without English there is nothing to choose: the app is Arabic.
+    if (features.englishLanguage &&
+        ref.read(localSettingsProvider).languageCode == null) {
       return location == '/language' ? null : '/language';
     }
 
@@ -62,7 +77,7 @@ final routerProvider = Provider<GoRouter>((ref) {
 
     final user = auth.value;
     if (user == null) {
-      if (requiresAuth(location)) {
+      if (requiresAuth(location, guestBrowsing: features.guestBrowsing)) {
         return _withFrom('/login', state.uri.toString());
       }
     } else {
@@ -98,6 +113,10 @@ final routerProvider = Provider<GoRouter>((ref) {
         path: '/splash',
         builder: (context, state) =>
             const Scaffold(body: Center(child: CircularProgressIndicator())),
+      ),
+      GoRoute(
+        path: '/unavailable',
+        builder: (context, state) => const AppUnavailableScreen(),
       ),
       GoRoute(
         path: '/language',
