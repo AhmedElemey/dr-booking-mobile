@@ -7,6 +7,7 @@ import '../../../core/l10n/generated/app_localizations.dart';
 import '../../../core/l10n/locale_controller.dart';
 import '../../auth/domain/app_user.dart';
 import '../../auth/presentation/auth_controller.dart';
+import '../../clinic_config/presentation/features_controller.dart';
 import '../data/profile_repository.dart';
 import 'language_switcher.dart';
 
@@ -20,6 +21,9 @@ class SettingsScreen extends ConsumerWidget {
     final theme = Theme.of(context);
     final user = ref.watch(authControllerProvider).value;
     final language = ref.watch(localeProvider).languageCode;
+    final englishEnabled = ref.watch(
+      featuresProvider.select((f) => f.englishLanguage),
+    );
 
     return Scaffold(
       appBar: AppBar(title: Text(l10n.settingsTitle)),
@@ -48,19 +52,21 @@ class SettingsScreen extends ConsumerWidget {
             )
           else
             _AccountCard(user: user),
-          const SizedBox(height: 24),
-          Text(l10n.languageSection, style: theme.textTheme.titleSmall),
-          const SizedBox(height: 8),
-          SegmentedButton<String>(
-            key: const Key('languageSelector'),
-            segments: [
-              ButtonSegment(value: 'ar', label: Text(l10n.arabic)),
-              ButtonSegment(value: 'en', label: Text(l10n.english)),
-            ],
-            selected: {language},
-            onSelectionChanged: (selection) =>
-                changeLanguage(ref, selection.first),
-          ),
+          if (englishEnabled) ...[
+            const SizedBox(height: 24),
+            Text(l10n.languageSection, style: theme.textTheme.titleSmall),
+            const SizedBox(height: 8),
+            SegmentedButton<String>(
+              key: const Key('languageSelector'),
+              segments: [
+                ButtonSegment(value: 'ar', label: Text(l10n.arabic)),
+                ButtonSegment(value: 'en', label: Text(l10n.english)),
+              ],
+              selected: {language},
+              onSelectionChanged: (selection) =>
+                  changeLanguage(ref, selection.first),
+            ),
+          ],
           if (user != null) ...[
             const SizedBox(height: 32),
             OutlinedButton.icon(

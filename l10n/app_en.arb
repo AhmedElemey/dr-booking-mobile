@@ -1,6 +1,5 @@
 {
   "@@locale": "en",
-  "appTitle": "Moonlight",
   "switchLanguage": "العربية",
   "retry": "Try again",
   "cancel": "Cancel",
@@ -28,7 +27,14 @@
   "navSettings": "Settings",
   "chooseLanguageTitle": "Choose your language",
   "chooseLanguageSubtitle": "You can change it any time in settings.",
-  "phoneTitle": "Welcome to Moonlight",
+  "phoneTitle": "Welcome to {brand}",
+  "@phoneTitle": {
+    "placeholders": {
+      "brand": {
+        "type": "String"
+      }
+    }
+  },
   "phoneSubtitle": "Enter your mobile number and we will text you a code.",
   "phoneLabel": "Mobile number",
   "phoneHint": "01012345678",
@@ -155,11 +161,25 @@
   "logoutConfirmTitle": "Log out?",
   "guestSettingsPrompt": "Sign in to book and manage appointments.",
   "loggedOut": "You are logged out.",
-  "errNetwork": "Can't reach Moonlight. Check your connection and try again.",
+  "errNetwork": "Can't reach {brand}. Check your connection and try again.",
+  "@errNetwork": {
+    "placeholders": {
+      "brand": {
+        "type": "String"
+      }
+    }
+  },
   "errUnknown": "Something went wrong. Please try again.",
   "errServer": "Our servers had a problem. Please try again shortly.",
   "errUnauthorized": "Your session ended. Please sign in again.",
-  "errForbidden": "This account is for clinic staff. Please use the Moonlight dashboard.",
+  "errForbidden": "This account is for clinic staff. Please use the {brand} dashboard.",
+  "@errForbidden": {
+    "placeholders": {
+      "brand": {
+        "type": "String"
+      }
+    }
+  },
   "errNotFound": "We couldn't find that.",
   "errValidation": "Please check the details and try again.",
   "errOtpInvalid": "That code is incorrect.",
@@ -170,5 +190,20 @@
   "errCancelWindow": "It's too close to the appointment to change it here. Please call the clinic.",
   "errInvalidTransition": "This appointment can't be changed anymore.",
   "errBookingLimit": "You have reached the limit of upcoming bookings (or already have one with this dentist that day).",
-  "errPhoneInUse": "This number belongs to another kind of account."
+  "errPhoneInUse": "This number belongs to another kind of account.",
+  "appUnavailableTitle": "The app isn't available right now",
+  "appUnavailableBody": "{brand} is not available in the app at the moment. Please use our website ({website}) or call the clinic.",
+  "@appUnavailableBody": {
+    "placeholders": {
+      "brand": {
+        "type": "String"
+      },
+      "website": {
+        "type": "String"
+      }
+    }
+  },
+  "callToChangeAppointment": "To change or cancel this appointment, please call the clinic.",
+  "errFeatureDisabled": "This isn't available right now. Please call the clinic.",
+  "errSelfServiceDisabled": "To change or cancel this appointment, please call the clinic."
 }

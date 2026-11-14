@@ -2,9 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/config/brand_l10n.dart';
 import '../../../core/l10n/generated/app_localizations.dart';
 import '../../../core/l10n/locale_controller.dart';
 import '../../../shared/widgets/error_view.dart';
+import '../../clinic_config/presentation/features_controller.dart';
 import '../../profile/presentation/language_switcher.dart';
 import '../../search/presentation/search_providers.dart';
 
@@ -45,13 +47,16 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final specialties = ref.watch(specialtiesProvider);
-    final cities = ref.watch(citiesProvider);
+    final multiBranch = ref.watch(
+      featuresProvider.select((f) => f.multiBranch),
+    );
+    final cities = multiBranch ? ref.watch(citiesProvider) : null;
     // Reset the city if a language change renamed the options.
     ref.listen(localeProvider, (_, _) => setState(() => _city = null));
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(l10n.appTitle),
+        title: Text(l10n.brandName),
         actions: const [LanguageToggleButton()],
       ),
       body: ListView(
@@ -69,29 +74,31 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               prefixIcon: const Icon(Icons.search),
             ),
           ),
-          const SizedBox(height: 12),
-          cities.maybeWhen(
-            data: (items) => items.isEmpty
-                ? const SizedBox.shrink()
-                : DropdownButtonFormField<String?>(
-                    key: const Key('cityField'),
-                    initialValue: _city,
-                    decoration: InputDecoration(
-                      labelText: l10n.cityLabel,
-                      prefixIcon: const Icon(Icons.place_outlined),
-                    ),
-                    items: [
-                      DropdownMenuItem(
-                        value: null,
-                        child: Text(l10n.allCities),
+          if (cities != null) ...[
+            const SizedBox(height: 12),
+            cities.maybeWhen(
+              data: (items) => items.isEmpty
+                  ? const SizedBox.shrink()
+                  : DropdownButtonFormField<String?>(
+                      key: const Key('cityField'),
+                      initialValue: _city,
+                      decoration: InputDecoration(
+                        labelText: l10n.cityLabel,
+                        prefixIcon: const Icon(Icons.place_outlined),
                       ),
-                      for (final city in items)
-                        DropdownMenuItem(value: city, child: Text(city)),
-                    ],
-                    onChanged: (value) => setState(() => _city = value),
-                  ),
-            orElse: () => const SizedBox.shrink(),
-          ),
+                      items: [
+                        DropdownMenuItem(
+                          value: null,
+                          child: Text(l10n.allCities),
+                        ),
+                        for (final city in items)
+                          DropdownMenuItem(value: city, child: Text(city)),
+                      ],
+                      onChanged: (value) => setState(() => _city = value),
+                    ),
+              orElse: () => const SizedBox.shrink(),
+            ),
+          ],
           const SizedBox(height: 24),
           Text(l10n.specialtiesTitle, style: theme.textTheme.titleMedium),
           const SizedBox(height: 12),

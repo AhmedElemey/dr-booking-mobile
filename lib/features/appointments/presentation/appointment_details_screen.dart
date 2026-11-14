@@ -6,10 +6,13 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../../core/format/clinic_time.dart';
 import '../../../core/l10n/failure_messages.dart';
 import '../../../core/l10n/generated/app_localizations.dart';
+import '../../../core/config/brand.g.dart';
 import '../../../shared/domain/clinic.dart';
 import '../../../shared/widgets/doctor_avatar.dart';
 import '../../../shared/widgets/error_view.dart';
 import '../../../shared/widgets/status_chip.dart';
+import '../../clinic_config/presentation/feature_unavailable_screen.dart';
+import '../../clinic_config/presentation/features_controller.dart';
 import '../data/appointments_repository.dart';
 import '../domain/appointment.dart';
 import 'appointments_providers.dart';
@@ -59,6 +62,9 @@ class _AppointmentDetailsScreenState
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final appointment = ref.watch(appointmentProvider(widget.id));
+    final selfService = ref.watch(
+      featuresProvider.select((f) => f.patientSelfService),
+    );
     return Scaffold(
       appBar: AppBar(title: Text(l10n.appointmentDetailsTitle)),
       body: appointment.when(
@@ -70,6 +76,7 @@ class _AppointmentDetailsScreenState
         data: (appointment) => _Body(
           appointment: appointment,
           cancelling: _cancelling,
+          selfService: selfService,
           onCancel: () => _cancel(appointment),
           onReschedule: () =>
               context.push('/appointments/${appointment.id}/reschedule'),
@@ -83,12 +90,14 @@ class _Body extends StatelessWidget {
   const _Body({
     required this.appointment,
     required this.cancelling,
+    required this.selfService,
     required this.onCancel,
     required this.onReschedule,
   });
 
   final Appointment appointment;
   final bool cancelling;
+  final bool selfService;
   final VoidCallback onCancel;
   final VoidCallback onReschedule;
 
@@ -215,7 +224,15 @@ class _Body extends StatelessWidget {
             ),
           ),
         ),
-        if (appointment.canChange) ...[
+        if (appointment.canChange && !selfService) ...[
+          const SizedBox(height: 20),
+          CallToChangeNotice(
+            phone: (clinic.phone ?? '').isNotEmpty
+                ? clinic.phone!
+                : Brand.supportPhone,
+          ),
+        ],
+        if (appointment.canChange && selfService) ...[
           const SizedBox(height: 20),
           FilledButton(
             key: const Key('reschedule'),
