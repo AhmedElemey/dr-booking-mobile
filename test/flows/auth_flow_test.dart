@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:moonlight/core/config/brand.g.dart';
 import 'package:moonlight/core/mock/mock_api_adapter.dart';
 import 'package:moonlight/features/auth/data/auth_repository.dart';
 import 'package:moonlight/features/auth/domain/app_user.dart';
@@ -21,7 +22,7 @@ void main() {
       await _goToLogin(tester);
 
       expect(find.byKey(const Key('phoneField')), findsOneWidget);
-      expect(find.text('Welcome to Moonlight'), findsOneWidget);
+      expect(find.text('Welcome to ${Brand.nameEn}'), findsOneWidget);
     },
   );
 

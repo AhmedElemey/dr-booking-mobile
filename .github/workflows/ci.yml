@@ -23,9 +23,10 @@ jobs:
       - run: dart format --set-exit-if-changed .
       - run: flutter pub get
       # The committed brand/platform files must match clinic.config.json.
-      # Pushes to main are handled by apply-brand.yml, which commits the result.
-      - if: github.event_name == 'pull_request'
-        run: dart run tool/apply_brand.dart
+      # On a pull request that is checked (no diff allowed). The console commits
+      # a new clinic.config.json straight to main, so there the files are
+      # regenerated first (apply-brand.yml then commits the result).
+      - run: dart run tool/apply_brand.dart
       - if: github.event_name == 'pull_request'
         run: git diff --exit-code
       - run: flutter analyze
