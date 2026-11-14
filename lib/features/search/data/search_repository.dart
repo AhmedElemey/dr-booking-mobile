@@ -41,6 +41,7 @@ class SearchRepository {
           queryParameters: {
             'specialtyId': ?query.specialtyId,
             'city': ?query.city,
+            'insuranceProviderId': ?query.insuranceProviderId,
             if (text != null && text.isNotEmpty) 'q': text,
             'page': page,
             'pageSize': pageSize,

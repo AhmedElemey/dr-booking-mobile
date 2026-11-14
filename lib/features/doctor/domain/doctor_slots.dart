@@ -36,17 +36,35 @@ class SlotDay {
   );
 }
 
+/// A day the clinic is closed for a holiday (`closedDates`).
+class ClosedDate {
+  const ClosedDate({required this.date, required this.name});
+
+  /// Clinic-local calendar date, `yyyy-MM-dd`.
+  final String date;
+  final String name;
+
+  factory ClosedDate.fromJson(Map<String, dynamic> json) => ClosedDate(
+    date: (json['date'] as String).substring(0, 10),
+    name: (json['name'] as String?) ?? '',
+  );
+}
+
 /// `GET /doctors/{idOrSlug}/slots`: open slots grouped by clinic-local day.
 class DoctorSlots {
   const DoctorSlots({
     required this.doctorId,
     required this.timezone,
     required this.days,
+    this.closedDates = const [],
   });
 
   final String doctorId;
   final String timezone;
   final List<SlotDay> days;
+
+  /// Holidays in the window (empty unless the clinic uses the holiday calendar).
+  final List<ClosedDate> closedDates;
 
   bool get isEmpty => days.every((d) => d.slots.isEmpty);
 
@@ -57,5 +75,18 @@ class DoctorSlots {
       for (final d in json['days'] as List)
         SlotDay.fromJson(d as Map<String, dynamic>),
     ],
+    closedDates: [
+      if (json['closedDates'] is List)
+        for (final c in json['closedDates'] as List)
+          ClosedDate.fromJson(c as Map<String, dynamic>),
+    ],
   );
+
+  /// The holiday on [date] (`yyyy-MM-dd`), if the clinic is closed that day.
+  ClosedDate? closedOn(String date) {
+    for (final c in closedDates) {
+      if (c.date == date) return c;
+    }
+    return null;
+  }
 }

@@ -11,21 +11,27 @@ class ProfileRepository {
 
   final Dio _dio;
 
-  ApiResult<AppUser> updateMe({String? fullName, String? preferredLanguage}) =>
-      guardApi(() async {
-        final response = await _dio.put<Map<String, dynamic>>(
-          '/me',
-          data: {
-            'fullName': ?fullName,
-            'preferredLanguage': ?preferredLanguage,
-          },
-        );
-        final data = response.data;
-        if (data != null && data['id'] != null) return AppUser.fromJson(data);
-        // The update succeeded but the body is not the user: read it back.
-        final fresh = await _dio.get<Map<String, dynamic>>('/me');
-        return AppUser.fromJson(fresh.data!);
-      });
+  ApiResult<AppUser> updateMe({
+    String? fullName,
+    String? preferredLanguage,
+    bool? whatsAppOptIn,
+    bool? marketingOptIn,
+  }) => guardApi(() async {
+    final response = await _dio.put<Map<String, dynamic>>(
+      '/me',
+      data: {
+        'fullName': ?fullName,
+        'preferredLanguage': ?preferredLanguage,
+        'whatsAppOptIn': ?whatsAppOptIn,
+        'marketingOptIn': ?marketingOptIn,
+      },
+    );
+    final data = response.data;
+    if (data != null && data['id'] != null) return AppUser.fromJson(data);
+    // The update succeeded but the body is not the user: read it back.
+    final fresh = await _dio.get<Map<String, dynamic>>('/me');
+    return AppUser.fromJson(fresh.data!);
+  });
 
   /// Idempotent by token; returns the id to unregister with.
   ApiResult<String> registerDeviceToken(String token, String platform) =>

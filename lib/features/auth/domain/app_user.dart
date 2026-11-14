@@ -6,6 +6,8 @@ class AppUser {
     required this.role,
     required this.preferredLanguage,
     this.fullName,
+    this.whatsAppOptIn = true,
+    this.marketingOptIn = true,
   });
 
   final String id;
@@ -16,6 +18,10 @@ class AppUser {
   /// Null until the profile is completed after the first login.
   final String? fullName;
 
+  /// Reminder and offer opt-ins (default on until the patient says otherwise).
+  final bool whatsAppOptIn;
+  final bool marketingOptIn;
+
   bool get isPatient => role == 'Patient';
   bool get hasName => (fullName ?? '').trim().isNotEmpty;
 
@@ -25,6 +31,8 @@ class AppUser {
     role: (json['role'] as String?) ?? 'Patient',
     preferredLanguage: (json['preferredLanguage'] as String?) ?? 'ar',
     fullName: json['fullName'] as String?,
+    whatsAppOptIn: json['whatsAppOptIn'] as bool? ?? true,
+    marketingOptIn: json['marketingOptIn'] as bool? ?? true,
   );
 }
 
