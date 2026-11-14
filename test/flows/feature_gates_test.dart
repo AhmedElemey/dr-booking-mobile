@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:moonlight/core/config/brand.g.dart';
 import 'package:moonlight/core/l10n/failure_messages.dart';
 import 'package:moonlight/core/l10n/generated/app_localizations_ar.dart';
 import 'package:moonlight/core/l10n/generated/app_localizations_en.dart';
@@ -29,7 +30,7 @@ void main() {
 
       expect(find.text("The app isn't available right now"), findsOneWidget);
       expect(find.byKey(const Key('callClinicUnavailable')), findsOneWidget);
-      expect(find.textContaining('moonlight.example'), findsOneWidget);
+      expect(find.textContaining(Brand.websiteDomain), findsOneWidget);
       expect(find.byKey(const Key('searchField')), findsNothing);
     });
 

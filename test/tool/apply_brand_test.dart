@@ -6,12 +6,22 @@ import 'package:flutter_test/flutter_test.dart';
 import '../../tool/apply_brand.dart';
 
 /// The files apply_brand touches, copied into a scratch project.
-const _tracked = [
+final _currentConfig = jsonDecode(
+  File('clinic.config.json').readAsStringSync(),
+) as Map<String, dynamic>;
+final _currentAndroidId =
+    (_currentConfig['mobile'] as Map<String, dynamic>)['androidApplicationId']
+        as String;
+final _currentIosId =
+    (_currentConfig['mobile'] as Map<String, dynamic>)['iosBundleId'] as String;
+final _currentPackagePath = _currentAndroidId.replaceAll('.', '/');
+
+final _tracked = [
   'clinic.config.json',
   'clinic.config.schema.json',
   'branding/logo.svg',
   'android/app/build.gradle.kts',
-  'android/app/src/main/kotlin/com/moonlight/app/MainActivity.kt',
+  'android/app/src/main/kotlin/$_currentPackagePath/MainActivity.kt',
   'ios/Runner.xcodeproj/project.pbxproj',
   'ios/Runner/Info.plist',
   'web/manifest.json',
@@ -103,7 +113,7 @@ void main() {
       isTrue,
     );
     expect(
-      snapshot.keys.where((k) => k.contains('com/moonlight')),
+      snapshot.keys.where((k) => k.contains('kotlin/$_currentPackagePath/')),
       isEmpty,
       reason: 'the old package directory is gone',
     );
@@ -120,7 +130,7 @@ void main() {
         'PRODUCT_BUNDLE_IDENTIFIER = com.smilecare.Patient.RunnerTests;',
       ),
     );
-    expect(pbx, isNot(contains('com.moonlight')));
+    expect(pbx, isNot(contains(_currentIosId)));
     expect(
       snapshot['ios/Runner/Info.plist'],
       contains('<key>CFBundleDisplayName</key>\n\t<string>Smile Care</string>'),
