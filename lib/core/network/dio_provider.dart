@@ -20,7 +20,7 @@ final tokenStoreProvider = Provider<TokenStore>(
 final dioProvider = Provider<Dio>((ref) {
   final env = ref.watch(envProvider);
   // One mock backend shared by both clients, so refreshed tokens stay valid.
-  final mock = env.useMockApi ? MockApiAdapter() : null;
+  final mock = env.useMockApi ? MockApiAdapter(demo: env.demoData) : null;
   final dio = _newDio(env, mock);
 
   // Refreshing goes through a bare client so it never re-enters the interceptor.
