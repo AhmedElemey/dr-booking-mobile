@@ -6,6 +6,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/l10n/failure_messages.dart';
+import '../../../core/config/brand_l10n.dart';
 import '../../../core/l10n/generated/app_localizations.dart';
 import '../../../core/network/failure.dart';
 import '../data/auth_repository.dart';
@@ -90,7 +91,7 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
       // A doctor/staff number: this app is for patients.
       setState(() {
         _busy = false;
-        _error = l10n.errForbidden;
+        _error = l10n.errForbidden(l10n.brandName);
       });
       return;
     }

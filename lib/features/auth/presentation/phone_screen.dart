@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/l10n/failure_messages.dart';
+import '../../../core/config/brand_l10n.dart';
 import '../../../core/l10n/generated/app_localizations.dart';
 import '../data/auth_repository.dart';
 import '../domain/phone_number.dart';
@@ -78,7 +79,10 @@ class _PhoneScreenState extends ConsumerState<PhoneScreen> {
                 color: theme.colorScheme.primary,
               ),
               const SizedBox(height: 20),
-              Text(l10n.phoneTitle, style: theme.textTheme.headlineMedium),
+              Text(
+                l10n.phoneTitle(l10n.brandName),
+                style: theme.textTheme.headlineMedium,
+              ),
               const SizedBox(height: 8),
               Text(l10n.phoneSubtitle, style: theme.textTheme.bodyLarge),
               const SizedBox(height: 28),

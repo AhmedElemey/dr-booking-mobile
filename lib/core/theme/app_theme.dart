@@ -1,9 +1,12 @@
 import 'package:flutter/material.dart';
 
-/// Moonlight's Material 3 theme.
+import '../config/brand.g.dart';
+
+/// The clinic's Material 3 theme, seeded from the brand colours.
 ThemeData buildTheme() {
   final scheme = ColorScheme.fromSeed(
-    seedColor: const Color(0xFF3F51B5),
+    seedColor: Brand.primary,
+    secondary: Brand.accent,
     surface: const Color(0xFFFAFAFD),
   );
   return ThemeData(

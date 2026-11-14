@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import '../../../core/format/clinic_time.dart';
+import '../../../core/config/brand_l10n.dart';
 import '../../../core/l10n/generated/app_localizations.dart';
 import 'booking_providers.dart';
 import 'calendar_link.dart';
@@ -84,7 +85,7 @@ class BookingSuccessScreen extends ConsumerWidget {
             OutlinedButton.icon(
               key: const Key('addToCalendar'),
               onPressed: () => launchUrl(
-                calendarUri(appointment, title: l10n.appTitle),
+                calendarUri(appointment, title: l10n.brandName),
                 mode: LaunchMode.externalApplication,
               ),
               icon: const Icon(Icons.edit_calendar_outlined),
