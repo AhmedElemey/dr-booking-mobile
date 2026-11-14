@@ -66,5 +66,18 @@
 		<string>UIInterfaceOrientationLandscapeLeft</string>
 		<string>UIInterfaceOrientationLandscapeRight</string>
 	</array>
+	<!-- payment-return scheme (apply_brand) -->
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleURLName</key>
+			<string>payment-return</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.moonlight.app</string>
+			</array>
+		</dict>
+	</array>
+	<!-- end payment-return scheme -->
 </dict>
 </plist>

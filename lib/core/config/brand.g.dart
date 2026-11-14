@@ -16,6 +16,10 @@ abstract final class Brand {
   static const accent = Color(0xFF0E9F9A);
   static const supportPhone = '+201000000000';
   static const websiteDomain = 'moonlight.example';
+  static const androidApplicationId = 'com.moonlight.app';
+
+  /// Where the payment checkout sends the patient back to the app (`<androidApplicationId>://payment-return`).
+  static const paymentReturnUrl = 'com.moonlight.app://payment-return';
 
   /// Used until the API answers, and whenever it cannot be reached.
   static const defaultFeatures = ClinicFeatures(
@@ -27,5 +31,18 @@ abstract final class Brand {
     smsNotifications: false,
     englishLanguage: true,
     multiBranch: true,
+    videoConsultation: false,
+    waitingList: false,
+    familyAccounts: false,
+    whatsappReminders: false,
+    onlinePayments: false,
+    insurance: false,
+    holidayCalendar: false,
+    workingHoursTemplates: false,
+    patientRecords: false,
+    reviews: false,
+    promotions: false,
+    recallCampaigns: false,
+    reports: false,
   );
 }

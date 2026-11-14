@@ -92,7 +92,20 @@
         "pushReminders",
         "smsNotifications",
         "englishLanguage",
-        "multiBranch"
+        "multiBranch",
+        "videoConsultation",
+        "waitingList",
+        "familyAccounts",
+        "whatsappReminders",
+        "onlinePayments",
+        "insurance",
+        "holidayCalendar",
+        "workingHoursTemplates",
+        "patientRecords",
+        "reviews",
+        "promotions",
+        "recallCampaigns",
+        "reports"
       ],
       "properties": {
         "mobileApp": { "type": "boolean" },
@@ -102,7 +115,20 @@
         "pushReminders": { "type": "boolean" },
         "smsNotifications": { "type": "boolean" },
         "englishLanguage": { "type": "boolean" },
-        "multiBranch": { "type": "boolean" }
+        "multiBranch": { "type": "boolean" },
+        "videoConsultation": { "type": "boolean" },
+        "waitingList": { "type": "boolean" },
+        "familyAccounts": { "type": "boolean" },
+        "whatsappReminders": { "type": "boolean" },
+        "onlinePayments": { "type": "boolean" },
+        "insurance": { "type": "boolean" },
+        "holidayCalendar": { "type": "boolean" },
+        "workingHoursTemplates": { "type": "boolean" },
+        "patientRecords": { "type": "boolean" },
+        "reviews": { "type": "boolean" },
+        "promotions": { "type": "boolean" },
+        "recallCampaigns": { "type": "boolean" },
+        "reports": { "type": "boolean" }
       }
     }
   }
