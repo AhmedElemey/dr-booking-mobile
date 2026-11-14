@@ -28,6 +28,20 @@ flutter analyze
 flutter test
 ```
 
+## Rebrand for a clinic
+
+A clinic's identity lives in `clinic.config.json` (schema: `clinic.config.schema.json`, logo: `branding/logo.svg`): names (ar/en), tagline, colours, support phone, website domain, Android/iOS app ids and the default feature switches. To rebrand:
+
+1. Edit `clinic.config.json`.
+2. Run `dart run tool/apply_brand.dart` (add `--check` to only verify). It validates the file against the schema, regenerates `lib/core/config/brand.g.dart` (used by the theme, the visible app name and the feature defaults) and rewrites the Android `applicationId`/`namespace`/app label (moving `MainActivity.kt` into the new package), the iOS bundle identifier and display name, and the web manifest and page title. It is idempotent.
+3. Commit the result. CI runs the tool and fails if it produces a diff.
+
+Launcher icons and the Firebase files are per-clinic assets and are not generated.
+
+## Feature switches
+
+`GET /api/v1/features` is read at startup and whenever the app resumes. The last answer is cached locally and the defaults from `clinic.config.json` apply until then (and when the API is unreachable). `mobileApp` off shows a full-screen "not available" page; `guestBrowsing` off sends guests to sign in before anything else; `patientSelfService` off swaps cancel/reschedule for a "call the clinic" prompt; `englishLanguage` off hides the language option and forces Arabic; `multiBranch` off hides the city filter. A `403 FEATURE_DISABLED` problem shows a localized message. Demo mode serves `/features` and `/branding` (see `MockApiAdapter.features`).
+
 ## Layout
 
 - `lib/main.dart`: `bootstrap(Env)`, shared by `main_dev.dart` and `main_prod.dart`
