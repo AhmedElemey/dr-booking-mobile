@@ -1,3 +1,4 @@
+import '../../features/promotions/domain/promotion.dart';
 import '../network/failure.dart';
 import '../config/brand_l10n.dart';
 import 'generated/app_localizations.dart';
@@ -27,8 +28,28 @@ extension FailureMessage on AppLocalizations {
       'PHONE_IN_USE' => errPhoneInUse,
       'RATE_LIMITED' => errRateLimited,
       'INTERNAL_ERROR' => errServer,
+      'CLINIC_CLOSED' => errClinicClosed,
+      'COUPON_INVALID' => couponReasonMessage(CouponReason.parse(error.reason)),
+      'ALREADY_REVIEWED' => errAlreadyReviewed,
+      'NOT_REVIEWABLE' => errNotReviewable,
+      'PAYMENT_NOT_ALLOWED' => errPaymentNotAllowed,
+      'VIDEO_NOT_OPEN' => errVideoNotOpen,
+      'ALREADY_WAITING' => errAlreadyWaiting,
+      'PROVIDER_ERROR' => errProvider,
       _ when (error.detail ?? '').isNotEmpty => error.detail!,
       _ => errUnknown,
     };
   }
+
+  /// Why a coupon code was refused (`reason` of `POST /coupons/validate`).
+  String couponReasonMessage(CouponReason? reason) => switch (reason) {
+    CouponReason.notFound => couponNotFound,
+    CouponReason.expired => couponExpired,
+    CouponReason.notStarted => couponNotStarted,
+    CouponReason.exhausted => couponExhausted,
+    CouponReason.perPatientLimit => couponPerPatient,
+    CouponReason.notApplicable => couponNotApplicable,
+    CouponReason.noPrice => couponNoPrice,
+    _ => couponInvalid,
+  };
 }

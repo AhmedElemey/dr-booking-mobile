@@ -1,7 +1,19 @@
 import 'package:flutter/material.dart';
 
 import '../../core/format/clinic_time.dart';
+import '../../core/l10n/generated/app_localizations.dart';
 import '../../features/doctor/domain/doctor_slots.dart';
+
+/// One day in the strip: open slots, or a holiday the clinic is closed for.
+class _PickerDay {
+  const _PickerDay(this.date, this.slots, this.closedName);
+
+  final String date;
+  final List<Slot> slots;
+  final String? closedName;
+
+  bool get isClosed => closedName != null;
+}
 
 /// A date strip plus a grid of the selected day's open slots. Everything is
 /// shown in clinic time, taken from the API's `date` and `local` fields.
@@ -22,7 +34,7 @@ class SlotPicker extends StatefulWidget {
 }
 
 class _SlotPickerState extends State<SlotPicker> {
-  late List<SlotDay> _days;
+  late List<_PickerDay> _days;
   late int _dayIndex;
 
   @override
@@ -41,24 +53,30 @@ class _SlotPickerState extends State<SlotPicker> {
     }
   }
 
-  List<SlotDay> _nonEmptyDays() => [
+  /// Days with open slots, plus the holidays the clinic is closed for, by date.
+  List<_PickerDay> _nonEmptyDays() => [
     for (final day in widget.slots.days)
-      if (day.slots.isNotEmpty) day,
-  ];
+      if (day.slots.isNotEmpty) _PickerDay(day.date, day.slots, null),
+    for (final closed in widget.slots.closedDates)
+      _PickerDay(closed.date, const [], closed.name),
+  ]..sort((a, b) => a.date.compareTo(b.date));
 
   int _indexOfSelected() {
     final selected = widget.selected;
-    if (selected == null) return 0;
+    // Without a choice, start on the first day that has times.
+    final firstOpen = _days.indexWhere((d) => !d.isClosed);
+    if (selected == null) return firstOpen < 0 ? 0 : firstOpen;
     final index = _days.indexWhere(
       (d) => d.slots.any((s) => s.id == selected.id),
     );
-    return index < 0 ? 0 : index;
+    return index < 0 ? (firstOpen < 0 ? 0 : firstOpen) : index;
   }
 
   @override
   Widget build(BuildContext context) {
     final locale = Localizations.localeOf(context).languageCode;
     final theme = Theme.of(context);
+    final l10n = AppLocalizations.of(context);
     final day = _days[_dayIndex];
     final date = ClinicTime.parseDate(day.date);
     return Column(
@@ -75,8 +93,13 @@ class _SlotPickerState extends State<SlotPicker> {
               final d = ClinicTime.parseDate(_days[index].date);
               final selected = index == _dayIndex;
               final scheme = theme.colorScheme;
+              final closed = _days[index].isClosed;
               return Material(
-                color: selected ? scheme.primary : Colors.white,
+                color: selected
+                    ? scheme.primary
+                    : closed
+                    ? scheme.surfaceContainerHighest
+                    : Colors.white,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(14),
                   side: BorderSide(
@@ -104,10 +127,20 @@ class _SlotPickerState extends State<SlotPicker> {
                         Text(
                           ClinicTime.dayNumber(d, locale),
                           style: theme.textTheme.titleLarge?.copyWith(
-                            color: selected ? scheme.onPrimary : null,
+                            color: selected
+                                ? scheme.onPrimary
+                                : closed
+                                ? scheme.outline
+                                : null,
                             fontWeight: FontWeight.w700,
                           ),
                         ),
+                        if (closed)
+                          Icon(
+                            Icons.event_busy_outlined,
+                            size: 14,
+                            color: selected ? scheme.onPrimary : scheme.outline,
+                          ),
                       ],
                     ),
                   ),
@@ -123,35 +156,61 @@ class _SlotPickerState extends State<SlotPicker> {
             style: theme.textTheme.titleSmall,
           ),
         ),
-        Expanded(
-          child: GridView.builder(
-            padding: const EdgeInsetsDirectional.fromSTEB(16, 4, 16, 16),
-            gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
-              maxCrossAxisExtent: 110,
-              mainAxisExtent: 46,
-              crossAxisSpacing: 10,
-              mainAxisSpacing: 10,
-            ),
-            itemCount: day.slots.length,
-            itemBuilder: (context, index) {
-              final slot = day.slots[index];
-              final label = ClinicTime.time(
-                ClinicTime.parseTime(slot.local),
-                locale,
-              );
-              return ChoiceChip(
-                key: Key('slot-${slot.id}'),
-                label: SizedBox(
-                  width: double.infinity,
-                  child: Text(label, textAlign: TextAlign.center),
+        if (day.isClosed)
+          Expanded(
+            child: Center(
+              key: Key('closed-${day.date}'),
+              child: Padding(
+                padding: const EdgeInsetsDirectional.all(24),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.event_busy_outlined,
+                      size: 44,
+                      color: theme.colorScheme.outline,
+                    ),
+                    const SizedBox(height: 10),
+                    Text(
+                      l10n.closedHoliday(day.closedName!),
+                      textAlign: TextAlign.center,
+                      style: theme.textTheme.titleMedium,
+                    ),
+                  ],
                 ),
-                selected: widget.selected?.id == slot.id,
-                showCheckmark: false,
-                onSelected: (_) => widget.onSelected(slot),
-              );
-            },
+              ),
+            ),
+          )
+        else
+          Expanded(
+            child: GridView.builder(
+              padding: const EdgeInsetsDirectional.fromSTEB(16, 4, 16, 16),
+              gridDelegate: const SliverGridDelegateWithMaxCrossAxisExtent(
+                maxCrossAxisExtent: 110,
+                mainAxisExtent: 46,
+                crossAxisSpacing: 10,
+                mainAxisSpacing: 10,
+              ),
+              itemCount: day.slots.length,
+              itemBuilder: (context, index) {
+                final slot = day.slots[index];
+                final label = ClinicTime.time(
+                  ClinicTime.parseTime(slot.local),
+                  locale,
+                );
+                return ChoiceChip(
+                  key: Key('slot-${slot.id}'),
+                  label: SizedBox(
+                    width: double.infinity,
+                    child: Text(label, textAlign: TextAlign.center),
+                  ),
+                  selected: widget.selected?.id == slot.id,
+                  showCheckmark: false,
+                  onSelected: (_) => widget.onSelected(slot),
+                );
+              },
+            ),
           ),
-        ),
       ],
     );
   }

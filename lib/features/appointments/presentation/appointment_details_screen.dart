@@ -12,8 +12,12 @@ import '../../../shared/widgets/doctor_avatar.dart';
 import '../../../shared/widgets/error_view.dart';
 import '../../../shared/widgets/status_chip.dart';
 import '../../clinic_config/presentation/feature_unavailable_screen.dart';
+import '../../../core/config/clinic_features.dart';
 import '../../clinic_config/presentation/features_controller.dart';
+import '../../../core/l10n/enum_labels.dart';
+import '../../video/presentation/video_join.dart';
 import '../data/appointments_repository.dart';
+import 'appointment_extras.dart';
 import '../domain/appointment.dart';
 import 'appointments_providers.dart';
 
@@ -62,9 +66,8 @@ class _AppointmentDetailsScreenState
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final appointment = ref.watch(appointmentProvider(widget.id));
-    final selfService = ref.watch(
-      featuresProvider.select((f) => f.patientSelfService),
-    );
+    final features = ref.watch(featuresProvider);
+    final selfService = features.patientSelfService;
     return Scaffold(
       appBar: AppBar(title: Text(l10n.appointmentDetailsTitle)),
       body: appointment.when(
@@ -75,6 +78,7 @@ class _AppointmentDetailsScreenState
         ),
         data: (appointment) => _Body(
           appointment: appointment,
+          features: features,
           cancelling: _cancelling,
           selfService: selfService,
           onCancel: () => _cancel(appointment),
@@ -89,6 +93,7 @@ class _AppointmentDetailsScreenState
 class _Body extends StatelessWidget {
   const _Body({
     required this.appointment,
+    required this.features,
     required this.cancelling,
     required this.selfService,
     required this.onCancel,
@@ -96,6 +101,7 @@ class _Body extends StatelessWidget {
   });
 
   final Appointment appointment;
+  final ClinicFeatures features;
   final bool cancelling;
   final bool selfService;
   final VoidCallback onCancel;
@@ -134,6 +140,11 @@ class _Body extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                if (features.familyAccounts && appointment.familyMember != null)
+                  _InfoLine(
+                    icon: Icons.family_restroom_outlined,
+                    text: l10n.forPersonLabel(appointment.familyMember!),
+                  ),
                 _InfoLine(
                   icon: Icons.event,
                   text: ClinicTime.date(appointment.startsAtLocal, locale),
@@ -149,10 +160,16 @@ class _Body extends StatelessWidget {
                     icon: Icons.medical_services_outlined,
                     text: appointment.service!.name,
                   ),
-                _InfoLine(
-                  icon: Icons.payments_outlined,
-                  text: l10n.payAtClinic,
-                ),
+                if (features.videoConsultation && appointment.isVideo)
+                  _InfoLine(
+                    icon: Icons.videocam_outlined,
+                    text: l10n.videoVisit,
+                  ),
+                if (!features.onlinePayments && !features.promotions)
+                  _InfoLine(
+                    icon: Icons.payments_outlined,
+                    text: l10n.payAtClinic,
+                  ),
                 if ((appointment.patientNote ?? '').isNotEmpty)
                   _InfoLine(
                     icon: Icons.notes,
@@ -176,6 +193,25 @@ class _Body extends StatelessWidget {
             ),
           ),
         ),
+        if (features.videoConsultation &&
+            appointment.isVideo &&
+            appointment.status == AppointmentStatus.confirmed) ...[
+          const SizedBox(height: 12),
+          VideoJoinCard(appointment: appointment),
+        ],
+        if (features.onlinePayments || features.promotions) ...[
+          const SizedBox(height: 12),
+          PriceCard(appointment: appointment),
+        ],
+        if (features.insurance && appointment.insurance != null) ...[
+          const SizedBox(height: 12),
+          InsuranceCard(insurance: appointment.insurance!),
+        ],
+        if (features.reviews &&
+            (appointment.canReview || appointment.review != null)) ...[
+          const SizedBox(height: 12),
+          ReviewSection(appointment: appointment),
+        ],
         const SizedBox(height: 12),
         Card(
           child: Padding(

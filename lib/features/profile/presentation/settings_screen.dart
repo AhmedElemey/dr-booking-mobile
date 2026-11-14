@@ -21,9 +21,8 @@ class SettingsScreen extends ConsumerWidget {
     final theme = Theme.of(context);
     final user = ref.watch(authControllerProvider).value;
     final language = ref.watch(localeProvider).languageCode;
-    final englishEnabled = ref.watch(
-      featuresProvider.select((f) => f.englishLanguage),
-    );
+    final features = ref.watch(featuresProvider);
+    final englishEnabled = features.englishLanguage;
 
     return Scaffold(
       appBar: AppBar(title: Text(l10n.settingsTitle)),
@@ -52,6 +51,75 @@ class SettingsScreen extends ConsumerWidget {
             )
           else
             _AccountCard(user: user),
+          if (user != null &&
+              (features.familyAccounts ||
+                  features.waitingList ||
+                  features.patientRecords)) ...[
+            const SizedBox(height: 24),
+            Text(l10n.sectionMyHealth, style: theme.textTheme.titleSmall),
+            const SizedBox(height: 8),
+            Card(
+              child: Column(
+                children: [
+                  if (features.familyAccounts)
+                    _NavTile(
+                      key: const Key('openFamily'),
+                      icon: Icons.family_restroom_outlined,
+                      label: l10n.familyTitle,
+                      onTap: () => context.push('/family'),
+                    ),
+                  if (features.waitingList)
+                    _NavTile(
+                      key: const Key('openWaitingList'),
+                      icon: Icons.notifications_active_outlined,
+                      label: l10n.waitingListTitle,
+                      onTap: () => context.push('/waiting-list'),
+                    ),
+                  if (features.patientRecords)
+                    _NavTile(
+                      key: const Key('openRecords'),
+                      icon: Icons.folder_shared_outlined,
+                      label: l10n.recordsTitle,
+                      onTap: () => context.push('/records'),
+                    ),
+                ],
+              ),
+            ),
+          ],
+          if (user != null &&
+              (features.whatsappReminders ||
+                  features.promotions ||
+                  features.recallCampaigns)) ...[
+            const SizedBox(height: 24),
+            Text(l10n.notificationsSection, style: theme.textTheme.titleSmall),
+            const SizedBox(height: 8),
+            Card(
+              child: Column(
+                children: [
+                  if (features.whatsappReminders)
+                    SwitchListTile(
+                      key: const Key('whatsappOptIn'),
+                      secondary: const Icon(Icons.chat_outlined),
+                      title: Text(l10n.whatsappReminders),
+                      subtitle: Text(l10n.whatsappRemindersHint),
+                      value: user.whatsAppOptIn,
+                      onChanged: (value) =>
+                          _setOptIn(context, ref, whatsApp: value),
+                    ),
+                  if (features.promotions || features.recallCampaigns)
+                    SwitchListTile(
+                      key: const Key('marketingOptIn'),
+                      secondary: const Icon(Icons.local_offer_outlined),
+                      title: Text(l10n.marketingOptIn),
+                      subtitle: Text(l10n.marketingOptInHint),
+                      value: user.marketingOptIn,
+                      onChanged: (value) =>
+                          _setOptIn(context, ref, marketing: value),
+                    ),
+                ],
+              ),
+            ),
+          ],
           if (englishEnabled) ...[
             const SizedBox(height: 24),
             Text(l10n.languageSection, style: theme.textTheme.titleSmall),
@@ -84,6 +152,26 @@ class SettingsScreen extends ConsumerWidget {
     );
   }
 
+  Future<void> _setOptIn(
+    BuildContext context,
+    WidgetRef ref, {
+    bool? whatsApp,
+    bool? marketing,
+  }) async {
+    final l10n = AppLocalizations.of(context);
+    final messenger = ScaffoldMessenger.of(context);
+    final result = await ref
+        .read(profileRepositoryProvider)
+        .updateMe(whatsAppOptIn: whatsApp, marketingOptIn: marketing);
+    result.fold(
+      (failure) => messenger.showSnackBar(
+        SnackBar(content: Text(l10n.failureMessage(failure))),
+      ),
+      (updated) =>
+          ref.read(authControllerProvider.notifier).userUpdated(updated),
+    );
+  }
+
   Future<void> _logout(BuildContext context, WidgetRef ref) async {
     final l10n = AppLocalizations.of(context);
     final messenger = ScaffoldMessenger.of(context);
@@ -108,6 +196,30 @@ class SettingsScreen extends ConsumerWidget {
     await ref.read(authControllerProvider.notifier).logout();
     messenger.showSnackBar(SnackBar(content: Text(l10n.loggedOut)));
   }
+}
+
+class _NavTile extends StatelessWidget {
+  const _NavTile({
+    super.key,
+    required this.icon,
+    required this.label,
+    required this.onTap,
+  });
+
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) => ListTile(
+    leading: Icon(icon),
+    title: Text(label),
+    trailing: Icon(
+      Icons.chevron_right,
+      textDirection: Directionality.of(context),
+    ),
+    onTap: onTap,
+  );
 }
 
 class _AccountCard extends ConsumerWidget {

@@ -3,6 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/l10n/generated/app_localizations.dart';
+import '../../clinic_config/presentation/features_controller.dart';
+import '../../insurance/domain/insurance.dart';
+import '../../insurance/presentation/insurance_providers.dart';
 import '../../../shared/widgets/doctor_card.dart';
 import '../../../shared/widgets/error_view.dart';
 import '../../../shared/widgets/paged_list_view.dart';
@@ -36,6 +39,45 @@ class _DoctorListScreenState extends ConsumerState<DoctorListScreen> {
     super.dispose();
   }
 
+  Future<void> _pickInsurer(List<InsuranceProvider> insurers) async {
+    final l10n = AppLocalizations.of(context);
+    final picked = await showModalBottomSheet<String?>(
+      context: context,
+      showDragHandle: true,
+      builder: (context) => SafeArea(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Text(
+              l10n.insuranceFilterTitle,
+              style: Theme.of(context).textTheme.titleMedium,
+            ),
+            const SizedBox(height: 8),
+            ListTile(
+              key: const Key('insurer-any'),
+              title: Text(l10n.allInsurers),
+              selected: _query.insuranceProviderId == null,
+              onTap: () => Navigator.of(context).pop(''),
+            ),
+            for (final insurer in insurers)
+              ListTile(
+                key: Key('insurer-${insurer.id}'),
+                title: Text(insurer.name),
+                selected: _query.insuranceProviderId == insurer.id,
+                onTap: () => Navigator.of(context).pop(insurer.id),
+              ),
+          ],
+        ),
+      ),
+    );
+    if (picked == null || !mounted) return;
+    setState(
+      () => _query = _query.copyWith(
+        insuranceProviderId: () => picked.isEmpty ? null : picked,
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
@@ -47,7 +89,18 @@ class _DoctorListScreenState extends ConsumerState<DoctorListScreen> {
         ?.where((s) => s.id == _query.specialtyId)
         .firstOrNull
         ?.name;
-    final hasFilters = _query.specialtyId != null || _query.city != null;
+    final insuranceOn = ref.watch(featuresProvider.select((f) => f.insurance));
+    final insurers = insuranceOn
+        ? ref.watch(insuranceProvidersProvider).value
+        : null;
+    final insurerName = insurers
+        ?.where((i) => i.id == _query.insuranceProviderId)
+        .firstOrNull
+        ?.name;
+    final hasFilters =
+        _query.specialtyId != null ||
+        _query.city != null ||
+        _query.insuranceProviderId != null;
 
     return Scaffold(
       appBar: AppBar(title: Text(l10n.doctorsTitle)),
@@ -67,6 +120,22 @@ class _DoctorListScreenState extends ConsumerState<DoctorListScreen> {
               ),
             ),
           ),
+          if (insuranceOn && insurers != null && insurers.isNotEmpty)
+            Padding(
+              padding: const EdgeInsetsDirectional.fromSTEB(16, 0, 16, 8),
+              child: Align(
+                alignment: AlignmentDirectional.centerStart,
+                child: ActionChip(
+                  key: const Key('insuranceFilter'),
+                  avatar: const Icon(
+                    Icons.health_and_safety_outlined,
+                    size: 18,
+                  ),
+                  label: Text(insurerName ?? l10n.insuranceFilterTitle),
+                  onPressed: () => _pickInsurer(insurers),
+                ),
+              ),
+            ),
           if (hasFilters)
             Padding(
               padding: const EdgeInsetsDirectional.fromSTEB(16, 0, 16, 8),
@@ -88,6 +157,16 @@ class _DoctorListScreenState extends ConsumerState<DoctorListScreen> {
                         label: Text(_query.city!),
                         onDeleted: () => setState(
                           () => _query = _query.copyWith(city: () => null),
+                        ),
+                      ),
+                    if (_query.insuranceProviderId != null)
+                      InputChip(
+                        key: const Key('insuranceChip'),
+                        label: Text(insurerName ?? l10n.insuranceLabel),
+                        onDeleted: () => setState(
+                          () => _query = _query.copyWith(
+                            insuranceProviderId: () => null,
+                          ),
                         ),
                       ),
                   ],
