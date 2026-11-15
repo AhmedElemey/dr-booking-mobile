@@ -64,7 +64,7 @@ class PriceCard extends ConsumerWidget {
             if (appointment.discountEgp > 0)
               _AmountRow(
                 label: l10n.discountLabel,
-                value: '-${l10n.priceEgp(appointment.discountEgp)}',
+                value: l10n.priceEgp(appointment.discountEgp),
                 color: Colors.green.shade700,
               ),
             const Divider(height: 20),

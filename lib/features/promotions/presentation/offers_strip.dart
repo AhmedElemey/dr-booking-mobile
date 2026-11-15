@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart' show NumberFormat;
+import 'package:intl/intl.dart' show DateFormat, NumberFormat;
 
 import '../../../core/format/clinic_time.dart';
 import '../../../core/l10n/generated/app_localizations.dart';
@@ -30,7 +30,7 @@ class OffersStrip extends ConsumerWidget {
         Text(l10n.offersTitle, style: theme.textTheme.titleMedium),
         const SizedBox(height: 12),
         SizedBox(
-          height: 150,
+          height: 176,
           child: ListView.separated(
             scrollDirection: Axis.horizontal,
             itemCount: offers.length,
@@ -130,10 +130,8 @@ class OfferCard extends ConsumerWidget {
                       Flexible(
                         child: Text(
                           l10n.offerValidUntil(
-                            ClinicTime.shortDate(
-                              ClinicTime.parseDate(offer.validTo!),
-                              locale,
-                            ),
+                            DateFormat.MMMd(locale)
+                                .format(ClinicTime.parseDate(offer.validTo!)),
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,

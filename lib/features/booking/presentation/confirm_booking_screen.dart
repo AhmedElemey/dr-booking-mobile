@@ -512,7 +512,7 @@ class _PriceSummary extends StatelessWidget {
             if (discount > 0)
               row(
                 l10n.discountLabel,
-                '-${l10n.priceEgp(discount)}',
+                l10n.priceEgp(discount),
                 style: TextStyle(color: Colors.green.shade700),
               ),
             const Divider(height: 16),
