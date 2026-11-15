@@ -66,6 +66,24 @@ class DoctorSlots {
   /// Holidays in the window (empty unless the clinic uses the holiday calendar).
   final List<ClosedDate> closedDates;
 
+  /// The clinic's calendar date at [nowUtc] (date only, zone-less). The API
+  /// sends no zone offset, so it is worked out from the first slot, whose UTC
+  /// instant and clinic wall-clock time are both known. Null without slots.
+  DateTime? clinicToday(DateTime nowUtc) {
+    for (final day in days) {
+      for (final slot in day.slots) {
+        final parts = day.date.substring(0, 10).split('-').map(int.parse);
+        final [y, m, d] = parts.toList();
+        final hm = slot.local.split(':').map(int.parse).toList();
+        final wall = DateTime.utc(y, m, d, hm[0], hm[1]);
+        final offset = wall.difference(slot.startsAt.toUtc());
+        final local = nowUtc.toUtc().add(offset);
+        return DateTime(local.year, local.month, local.day);
+      }
+    }
+    return null;
+  }
+
   bool get isEmpty => days.every((d) => d.slots.isEmpty);
 
   factory DoctorSlots.fromJson(Map<String, dynamic> json) => DoctorSlots(

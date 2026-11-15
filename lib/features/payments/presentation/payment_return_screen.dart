@@ -1,7 +1,10 @@
+import 'dart:async';
+
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/links/url_opener.dart';
 import '../../../core/network/failure.dart';
 import '../../../core/l10n/generated/app_localizations.dart';
 import '../../../shared/widgets/error_view.dart';
@@ -31,6 +34,9 @@ class _PaymentReturnScreenState extends ConsumerState<PaymentReturnScreen> {
   @override
   void initState() {
     super.initState();
+    // The checkout tab (iOS Safari sheet / Android Custom Tab) stays on top of
+    // the app after redirecting here; close it.
+    unawaited(ref.read(inAppBrowserCloserProvider)());
     _load();
   }
 

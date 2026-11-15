@@ -35,6 +35,12 @@ abstract final class ClinicTime {
     );
   }
 
+  /// `yyyy-MM-dd` for the API: ASCII digits whatever the app locale is.
+  static String apiDate(DateTime d) =>
+      '${d.year.toString().padLeft(4, '0')}-'
+      '${d.month.toString().padLeft(2, '0')}-'
+      '${d.day.toString().padLeft(2, '0')}';
+
   /// `yyyy-MM-dd` as sent in a slot day's `date` field.
   static DateTime parseDate(String ymd) {
     final p = ymd.split('-').map(int.parse).toList();

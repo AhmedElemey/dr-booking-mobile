@@ -439,5 +439,10 @@
   "errVideoNotOpen": "The video room opens 15 minutes before the visit.",
   "errAlreadyWaiting": "You're already on this waiting list.",
   "errProvider": "The payment service had a problem. Please try again.",
-  "payOnlineOrClinic": "Pay at the clinic, or online right after you book."
+  "payOnlineOrClinic": "Pay at the clinic, or online right after you book.",
+  "continuePayment": "Continue payment",
+  "errBookingModeRefused": "This doctor no longer offers video visits. Your visit was switched to in person.",
+  "errBookingInsurerRefused": "This doctor does not accept that insurance provider. Choose another or book without insurance.",
+  "errBookingMemberRefused": "That family member is no longer available. Pick who the visit is for.",
+  "couldNotOpenAttachment": "Couldn't open the file. Check your connection and try again."
 }

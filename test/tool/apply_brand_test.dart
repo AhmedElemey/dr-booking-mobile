@@ -246,5 +246,57 @@ void main() {
         contains('does not exist'),
       );
     });
+
+    test('rejects an underscore in the application id (URI scheme)', () {
+      for (final id in [
+        'com.my_clinic.app',
+        'com.clinic.app_2',
+        'my_app.clinic',
+      ]) {
+        final errors = problemsAfter(
+          (c) => (c['mobile'] as Map)['androidApplicationId'] = id,
+        );
+        expect(errors, hasLength(1), reason: id);
+        expect(errors.single, contains('androidApplicationId'));
+        expect(errors.single, contains('"_"'));
+      }
+    });
+
+    test('the schema pattern itself has no underscore', () {
+      final schema = jsonDecode(
+        File('clinic.config.schema.json').readAsStringSync(),
+      ) as Map<String, dynamic>;
+      final mobile = (schema['properties'] as Map)['mobile'] as Map;
+      final pattern =
+          (((mobile['properties'] as Map)['androidApplicationId'])
+                  as Map)['pattern']
+              as String;
+      expect(pattern.contains('_'), isFalse);
+      final re = RegExp(pattern);
+      expect(re.hasMatch('com.moonlight.app'), isTrue);
+      expect(re.hasMatch('com.my_clinic.app'), isFalse);
+    });
+
+    test('ids with digits and several segments still pass', () {
+      final dir = _scratchProject();
+      _editConfig(
+        dir,
+        (c) => (c['mobile'] as Map)['androidApplicationId'] =
+            'eg.clinic2.patient.app',
+      );
+      final errors = <String>[];
+      applyBrand(dir.path, errors: errors);
+      expect(errors, isEmpty);
+    });
+
+    test(
+      'the manifest keeps the single-task launch mode for the payment return',
+      () {
+        expect(
+          File('android/app/src/main/AndroidManifest.xml').readAsStringSync(),
+          contains('android:launchMode="singleTask"'),
+        );
+      },
+    );
   });
 }

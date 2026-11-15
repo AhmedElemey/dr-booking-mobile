@@ -48,14 +48,21 @@ class RecordEntry {
     required this.title,
     required this.createdAt,
     this.body,
-    this.attachmentUrl,
+    this.hasAttachment = false,
+    this.doctorName,
   });
 
   final String id;
   final RecordKind kind;
   final String title;
   final String? body;
-  final String? attachmentUrl;
+
+  /// Whether a file is attached. It is downloaded with the signed-in session
+  /// from `GET /me/records/{id}/attachment`, never from a public link.
+  final bool hasAttachment;
+
+  /// The doctor who wrote the entry, when the clinic shows it.
+  final String? doctorName;
   final DateTime createdAt;
 
   factory RecordEntry.fromJson(Map<String, dynamic> json) => RecordEntry(
@@ -63,7 +70,10 @@ class RecordEntry {
     kind: RecordKind.parse(json['kind'] as String?),
     title: json['title'] as String,
     body: json['body'] as String?,
-    attachmentUrl: json['attachmentUrl'] as String?,
+    hasAttachment:
+        json['hasAttachment'] == true ||
+        ((json['attachmentUrl'] as String?) ?? '').isNotEmpty,
+    doctorName: json['doctorName'] as String?,
     createdAt: DateTime.parse(json['createdAt'] as String),
   );
 }

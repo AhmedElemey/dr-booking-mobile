@@ -91,6 +91,13 @@ class _EntryCard extends ConsumerWidget {
                         entry.doctor.name,
                         style: theme.textTheme.titleMedium,
                       ),
+                      if (entry.familyMember != null)
+                        Text(
+                          '${l10n.bookingFor}: ${entry.familyMember!.fullName} '
+                          '(${l10n.relationName(entry.familyMember!.relation)})',
+                          key: Key('waitingFor-${entry.id}'),
+                          style: theme.textTheme.bodySmall,
+                        ),
                       Text(
                         ClinicTime.date(
                           ClinicTime.parseDate(entry.date),

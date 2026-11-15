@@ -59,7 +59,8 @@ class _VideoJoinCardState extends ConsumerState<VideoJoinCard> {
       return null;
     }, (room) => room.joinUrl);
     if (room == null) return;
-    final opened = await ref.read(urlOpenerProvider)(Uri.parse(room));
+    final url = safeWebUri(room);
+    final opened = url != null && await ref.read(urlOpenerProvider)(url);
     if (!opened) {
       messenger.showSnackBar(SnackBar(content: Text(l10n.couldNotOpenLink)));
     }

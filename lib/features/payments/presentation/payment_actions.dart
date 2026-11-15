@@ -12,7 +12,8 @@ import '../../clinic_config/presentation/features_controller.dart';
 import '../domain/payment.dart';
 import 'payment_flow.dart';
 
-/// "Pay online" for an upcoming, unpaid appointment; hidden when the clinic has
+/// "Pay online" (or "Continue payment" when a checkout was started and not
+/// finished) for an upcoming, unpaid appointment; hidden when the clinic has
 /// online payments off or there is nothing to pay.
 class PayOnlineButton extends ConsumerStatefulWidget {
   const PayOnlineButton({super.key, required this.appointment});
@@ -40,10 +41,9 @@ class _PayOnlineButtonState extends ConsumerState<PayOnlineButton> {
         await _demoCheckout(checkout, appointment);
         return;
       }
-      final opened = await ref.read(urlOpenerProvider)(
-        Uri.parse(checkout.checkoutUrl),
-        inApp: true,
-      );
+      final url = safeWebUri(checkout.checkoutUrl);
+      final opened =
+          url != null && await ref.read(urlOpenerProvider)(url, inApp: true);
       if (!opened) {
         messenger.showSnackBar(SnackBar(content: Text(l10n.couldNotOpenLink)));
       }
@@ -121,7 +121,11 @@ class _PayOnlineButtonState extends ConsumerState<PayOnlineButton> {
               child: CircularProgressIndicator(strokeWidth: 2),
             )
           : const Icon(Icons.credit_card),
-      label: Text(l10n.payOnline),
+      label: Text(
+        widget.appointment.isPaymentPending
+            ? l10n.continuePayment
+            : l10n.payOnline,
+      ),
     );
   }
 }

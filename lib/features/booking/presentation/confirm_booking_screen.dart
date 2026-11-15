@@ -3,11 +3,11 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/format/clinic_time.dart';
-import '../../../core/l10n/enum_labels.dart';
 import '../../../core/l10n/failure_messages.dart';
 import '../../../core/l10n/generated/app_localizations.dart';
 import '../../../core/network/failure.dart';
 import '../../../shared/domain/clinic.dart';
+import '../../../shared/widgets/input_formatters.dart';
 import '../../appointments/data/appointments_repository.dart';
 import '../../appointments/domain/appointment.dart';
 import '../../appointments/presentation/appointments_providers.dart';
@@ -16,12 +16,13 @@ import '../../clinic_config/presentation/features_controller.dart';
 import '../../doctor/presentation/doctor_providers.dart';
 import '../../family/domain/family_member.dart';
 import '../../family/presentation/family_providers.dart';
-import '../../family/presentation/family_screen.dart';
+import '../../family/presentation/booking_for_picker.dart';
 import '../../insurance/domain/insurance.dart';
 import '../../promotions/domain/promotion.dart';
 import '../../promotions/presentation/coupon_field.dart';
 import '../../promotions/presentation/promotions_providers.dart';
 import '../domain/booking_draft.dart';
+import '../domain/booking_issue.dart';
 import 'booking_providers.dart';
 
 /// Booking step 2: summary, optional visit type and note. Guests can reach this
@@ -47,6 +48,10 @@ class _ConfirmBookingScreenState extends ConsumerState<ConfirmBookingScreen> {
   late final String? _savedCoupon = ref.read(selectedCouponProvider);
   bool _booking = false;
   String? _error;
+
+  /// Set when the API refused them, so the stale doctor data is not offered again.
+  bool _videoRefused = false;
+  final _refusedInsurers = <String>{};
 
   @override
   void dispose() {
@@ -88,7 +93,10 @@ class _ConfirmBookingScreenState extends ConsumerState<ConfirmBookingScreen> {
           serviceId: _service?.id,
           note: _note.text,
           familyMemberId: features.familyAccounts ? _member?.id : null,
-          mode: features.videoConsultation && draft.doctor.offersVideo
+          mode:
+              features.videoConsultation &&
+                  draft.doctor.offersVideo &&
+                  !_videoRefused
               ? _mode
               : null,
           insurance: features.insurance && _useInsurance && insurer != null
@@ -99,10 +107,41 @@ class _ConfirmBookingScreenState extends ConsumerState<ConfirmBookingScreen> {
     if (!mounted) return;
     final failure = result.fold<Failure?>((f) => f, (_) => null);
     if (failure != null) {
+      final issue = BookingIssue.from(failure);
       setState(() {
         _booking = false;
-        _error = l10n.failureMessage(failure);
+        _error = switch (issue) {
+          BookingIssue.mode => l10n.errBookingModeRefused,
+          BookingIssue.insuranceProvider => l10n.errBookingInsurerRefused,
+          BookingIssue.insuranceMemberNumber => l10n.insuranceRequired,
+          BookingIssue.familyMember => l10n.errBookingMemberRefused,
+          null => l10n.failureMessage(failure),
+        };
+        switch (issue) {
+          case BookingIssue.mode:
+            _videoRefused = true;
+            _mode = AppointmentMode.inPerson;
+          case BookingIssue.insuranceProvider:
+            if (insurer != null) _refusedInsurers.add(insurer.id);
+            _insurer = null;
+            if (draft.doctor.insuranceProviders.every(
+              (p) => _refusedInsurers.contains(p.id),
+            )) {
+              _useInsurance = false;
+            }
+          case BookingIssue.familyMember:
+            _member = null;
+          case BookingIssue.insuranceMemberNumber || null:
+            break;
+        }
       });
+      if (issue == BookingIssue.mode ||
+          issue == BookingIssue.insuranceProvider) {
+        ref.invalidate(doctorProvider(draft.doctor.slug));
+      }
+      if (issue == BookingIssue.familyMember) {
+        ref.invalidate(familyMembersProvider);
+      }
       if (failure.code == 'CLINIC_CLOSED') {
         ref.invalidate(doctorSlotsProvider(draft.doctor.slug));
         context.go('/doctors/${draft.doctor.slug}/slots');
@@ -148,6 +187,10 @@ class _ConfirmBookingScreenState extends ConsumerState<ConfirmBookingScreen> {
     final when =
         '${ClinicTime.date(slotLocal, locale)}\n${ClinicTime.time(slotLocal, locale)}';
     final doctor = draft.doctor;
+    final insurers = [
+      for (final p in doctor.insuranceProviders)
+        if (!_refusedInsurers.contains(p.id)) p,
+    ];
 
     return Scaffold(
       appBar: AppBar(title: Text(l10n.confirmTitle)),
@@ -199,12 +242,14 @@ class _ConfirmBookingScreenState extends ConsumerState<ConfirmBookingScreen> {
           ],
           if (features.familyAccounts && !isGuest) ...[
             const SizedBox(height: 20),
-            _BookingForPicker(
+            BookingForPicker(
               selected: _member,
               onSelected: (member) => setState(() => _member = member),
             ),
           ],
-          if (features.videoConsultation && doctor.offersVideo) ...[
+          if (features.videoConsultation &&
+              doctor.offersVideo &&
+              !_videoRefused) ...[
             const SizedBox(height: 20),
             Text(l10n.visitModeLabel, style: theme.textTheme.titleSmall),
             const SizedBox(height: 8),
@@ -234,7 +279,7 @@ class _ConfirmBookingScreenState extends ConsumerState<ConfirmBookingScreen> {
                 ),
               ),
           ],
-          if (features.insurance && doctor.insuranceProviders.isNotEmpty) ...[
+          if (features.insurance && insurers.isNotEmpty) ...[
             const SizedBox(height: 12),
             Card(
               child: Padding(
@@ -259,7 +304,7 @@ class _ConfirmBookingScreenState extends ConsumerState<ConfirmBookingScreen> {
                           labelText: l10n.insuranceProviderLabel,
                         ),
                         items: [
-                          for (final provider in doctor.insuranceProviders)
+                          for (final provider in insurers)
                             DropdownMenuItem(
                               value: provider,
                               child: Text(provider.name),
@@ -271,6 +316,8 @@ class _ConfirmBookingScreenState extends ConsumerState<ConfirmBookingScreen> {
                       TextField(
                         key: const Key('memberNumberField'),
                         controller: _memberNumber,
+                        maxLength: 100,
+                        inputFormatters: [noLeadingSpace],
                         textDirection: TextDirection.ltr,
                         decoration: InputDecoration(
                           labelText: l10n.insuranceMemberLabel,
@@ -417,66 +464,6 @@ class _SummaryRow extends StatelessWidget {
           ),
         ],
       ),
-    );
-  }
-}
-
-/// "Booking for": me or one of the family members (or add a new one).
-class _BookingForPicker extends ConsumerWidget {
-  const _BookingForPicker({required this.selected, required this.onSelected});
-
-  final FamilyMember? selected;
-  final ValueChanged<FamilyMember?> onSelected;
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final l10n = AppLocalizations.of(context);
-    final theme = Theme.of(context);
-    final members = ref.watch(familyMembersProvider).value ?? const [];
-    return Column(
-      key: const Key('bookingFor'),
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Text(l10n.bookingFor, style: theme.textTheme.titleSmall),
-        const SizedBox(height: 8),
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
-          children: [
-            ChoiceChip(
-              key: const Key('for-me'),
-              avatar: const Icon(Icons.person_outline, size: 18),
-              label: Text(l10n.bookingForMe),
-              selected: selected == null,
-              onSelected: (_) => onSelected(null),
-            ),
-            for (final member in members)
-              ChoiceChip(
-                key: Key('for-${member.id}'),
-                avatar: Icon(
-                  member.relation == FamilyRelation.child
-                      ? Icons.child_care
-                      : Icons.person_outline,
-                  size: 18,
-                ),
-                label: Text(
-                  '${member.fullName} (${l10n.relationName(member.relation)})',
-                ),
-                selected: selected?.id == member.id,
-                onSelected: (_) => onSelected(member),
-              ),
-            ActionChip(
-              key: const Key('addMemberChip'),
-              avatar: const Icon(Icons.add, size: 18),
-              label: Text(l10n.addFamilyMember),
-              onPressed: () async {
-                final saved = await showFamilyMemberSheet(context, ref);
-                if (saved == true) ref.invalidate(familyMembersProvider);
-              },
-            ),
-          ],
-        ),
-      ],
     );
   }
 }

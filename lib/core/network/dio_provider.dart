@@ -2,6 +2,7 @@ import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../features/auth/presentation/auth_controller.dart';
+import '../../features/clinic_config/presentation/features_controller.dart';
 import '../../features/auth/data/auth_repository.dart' show tokensFromJson;
 import '../config/env.dart';
 import '../config/env_provider.dart';
@@ -9,6 +10,7 @@ import '../l10n/locale_controller.dart';
 import '../mock/mock_api_adapter.dart';
 import '../storage/token_store.dart';
 import 'auth_interceptor.dart';
+import 'feature_disabled_interceptor.dart';
 
 final tokenStoreProvider = Provider<TokenStore>(
   (ref) => ref.watch(envProvider).useMockApi
@@ -22,6 +24,13 @@ final dioProvider = Provider<Dio>((ref) {
   // One mock backend shared by both clients, so refreshed tokens stay valid.
   final mock = env.useMockApi ? MockApiAdapter(demo: env.demoData) : null;
   final dio = _newDio(env, mock);
+
+  // A feature the clinic just turned off: re-read the switches now.
+  dio.interceptors.add(
+    FeatureDisabledInterceptor(
+      () => ref.read(featuresProvider.notifier).refresh(),
+    ),
+  );
 
   // Refreshing goes through a bare client so it never re-enters the interceptor.
   final refreshDio = _newDio(env, mock);

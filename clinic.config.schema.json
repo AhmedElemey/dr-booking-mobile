@@ -64,7 +64,8 @@
       "properties": {
         "androidApplicationId": {
           "type": "string",
-          "pattern": "^[a-z][a-z0-9_]*(\\.[a-z][a-z0-9_]*)+$"
+          "description": "Android application id. No underscore: the payment checkout returns to <id>://payment-return and an underscore is not allowed in a URI scheme (RFC 3986).",
+          "pattern": "^[a-z][a-z0-9]*(\\.[a-z][a-z0-9]*)+$"
         },
         "iosBundleId": {
           "type": "string",

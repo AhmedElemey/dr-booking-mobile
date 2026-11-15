@@ -188,6 +188,7 @@ class MockRecord {
     this.daysAgo, {
     this.attachmentUrl,
     this.owner,
+    this.doctorName,
   });
 
   final String id;
@@ -196,6 +197,7 @@ class MockRecord {
   final String? body;
   final int daysAgo;
   final String? attachmentUrl;
+  final String? doctorName;
 
   /// Family member id the entry belongs to; null for the account owner.
   final String? owner;
@@ -208,6 +210,7 @@ const mockRecords = [
     'تسوس في الضرس السفلي الأيمن',
     'تم عمل حشو تجميلي. يُنصح بمتابعة بعد 6 أشهر.',
     20,
+    doctorName: 'د. عمرو حسن',
   ),
   MockRecord(
     'rec-2',

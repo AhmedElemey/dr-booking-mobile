@@ -92,7 +92,24 @@ List<String> applyBrand(
     return const [];
   }
   final schema = jsonDecode(schemaFile.readAsStringSync());
-  errors.addAll(validateAgainstSchema(config, schema as Map<String, dynamic>));
+  final schemaErrors = validateAgainstSchema(
+    config,
+    schema as Map<String, dynamic>,
+  );
+  // The application id doubles as the payment-return URI scheme
+  // (`<id>://payment-return`), and `_` is legal in an Android id but not in a
+  // URI scheme (RFC 3986). Say so instead of a bare pattern mismatch.
+  final id = _androidIdOf(config);
+  if (id != null && id.contains('_')) {
+    schemaErrors.removeWhere(
+      (e) => e.startsWith('mobile.androidApplicationId'),
+    );
+    errors.add(
+      'mobile.androidApplicationId: "$id" must not contain "_" '
+      '(it is also the payment-return URL scheme, which cannot hold one)',
+    );
+  }
+  errors.addAll(schemaErrors);
   if (errors.isNotEmpty) return const [];
 
   final c = config as Map<String, dynamic>;
@@ -114,6 +131,14 @@ List<String> applyBrand(
   _ios(writer, iosId, nameEn, androidId);
   _web(writer, nameEn);
   return writer.changed;
+}
+
+String? _androidIdOf(Object? config) {
+  if (config is! Map) return null;
+  final mobile = config['mobile'];
+  if (mobile is! Map) return null;
+  final id = mobile['androidApplicationId'];
+  return id is String ? id : null;
 }
 
 // --- validation ----------------------------------------------------------

@@ -116,10 +116,16 @@ class Appointment {
 
   bool get isVideo => mode == AppointmentMode.video;
 
-  /// Whether "Pay online" applies: a future confirmed visit with something to pay.
+  /// A checkout was started and not finished (no webhook yet, or the patient
+  /// closed it). The API replaces an abandoned checkout with a fresh one.
+  bool get isPaymentPending =>
+      paymentStatus == AppointmentPaymentStatus.pending;
+
+  /// Whether "Pay online" applies: a future confirmed visit with something to
+  /// pay, unpaid or with an unfinished checkout ("Continue payment").
   bool get canPayOnline =>
       isUpcoming &&
-      paymentStatus == AppointmentPaymentStatus.unpaid &&
+      (paymentStatus == AppointmentPaymentStatus.unpaid || isPaymentPending) &&
       (totalEgp ?? 0) > 0;
 
   /// When the video room opens and closes (start - 15 min, end + 30 min).

@@ -303,6 +303,11 @@ class MockApiAdapter implements HttpClientAdapter {
     final path = options.path.replaceFirst(RegExp(r'^/api/v1'), '');
     final method = options.method.toUpperCase();
     final body = _body(options.data);
+    final attachment = RegExp(r'^/me/records/([^/]+)/attachment$')
+        .firstMatch(path);
+    if (method == 'GET' && attachment != null) {
+      return _attachment(attachment.group(1)!);
+    }
     try {
       final result = _route(method, path, options, body, lang);
       return _json(result.$1, result.$2);
@@ -328,6 +333,26 @@ class MockApiAdapter implements HttpClientAdapter {
       return jsonDecode(data) as Map<String, dynamic>;
     }
     return const {};
+  }
+
+  /// The authorized attachment download: raw bytes, not JSON.
+  ResponseBody _attachment(String id) {
+    final known = mockRecords.any((r) => r.id == id && r.attachmentUrl != null);
+    if (!known) {
+      return _json(404, {
+        'status': 404,
+        'code': 'NOT_FOUND',
+        'detail': 'Not found.',
+      });
+    }
+    return ResponseBody.fromBytes(
+      utf8.encode('%PDF-1.4\n% demo attachment\n%%EOF\n'),
+      200,
+      headers: {
+        Headers.contentTypeHeader: ['application/pdf'],
+        'content-disposition': ['attachment; filename="panorama.pdf"'],
+      },
+    );
   }
 
   ResponseBody _json(int status, Object? data) => ResponseBody.fromString(
@@ -992,6 +1017,7 @@ class MockApiAdapter implements HttpClientAdapter {
           (w) =>
               w.doctorIndex == doctorIndex &&
               w.date == day &&
+              w.familyMemberId == body['familyMemberId'] &&
               (w.status == 'Waiting' || w.status == 'Notified'),
         );
         if (exists) {
@@ -1009,6 +1035,7 @@ class MockApiAdapter implements HttpClientAdapter {
           day,
           'Waiting',
           DateTime.now().toUtc(),
+          familyMemberId: body['familyMemberId'] as String?,
         );
         _waiting.add(entry);
         return (201, _waitingJson(entry, lang));
@@ -1092,7 +1119,8 @@ class MockApiAdapter implements HttpClientAdapter {
                   'kind': r.kind,
                   'title': r.title,
                   'body': r.body,
-                  'attachmentUrl': r.attachmentUrl,
+                  'hasAttachment': r.attachmentUrl != null,
+                  'doctorName': r.doctorName,
                   'createdAt': _iso(
                     DateTime.now().toUtc().subtract(Duration(days: r.daysAgo)),
                   ),
@@ -1116,6 +1144,7 @@ class MockApiAdapter implements HttpClientAdapter {
       },
       'date': _ymd(w.date),
       'status': w.status,
+      'familyMember': _familyRef(w.familyMemberId),
       'notifiedAt': w.notifiedAt == null ? null : _iso(w.notifiedAt!),
     };
   }
@@ -1313,9 +1342,11 @@ class _MockWaiting {
     this.status,
     this.createdAt, {
     this.notifiedAt,
+    this.familyMemberId,
   });
 
   final String id;
+  final String? familyMemberId;
   final int doctorIndex;
   final DateTime date;
   String status;

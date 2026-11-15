@@ -1,12 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:intl/intl.dart';
 
 import '../../../core/format/clinic_time.dart';
 import '../../../core/l10n/enum_labels.dart';
 import '../../../core/l10n/failure_messages.dart';
 import '../../../core/l10n/generated/app_localizations.dart';
 import '../../../shared/widgets/error_view.dart';
+import '../../../shared/widgets/input_formatters.dart';
 import '../data/family_repository.dart';
 import '../domain/family_member.dart';
 import 'family_providers.dart';
@@ -218,7 +218,7 @@ class _MemberFormState extends ConsumerState<_MemberForm> {
       lastDate: now,
     );
     if (picked != null) {
-      setState(() => _dob = DateFormat('yyyy-MM-dd').format(picked));
+      setState(() => _dob = ClinicTime.apiDate(picked));
     }
   }
 
@@ -288,6 +288,8 @@ class _MemberFormState extends ConsumerState<_MemberForm> {
             TextField(
               key: const Key('familyNameField'),
               controller: _name,
+              maxLength: 200,
+              inputFormatters: [noLeadingSpace],
               textCapitalization: TextCapitalization.words,
               decoration: InputDecoration(labelText: l10n.fullNameLabel),
             ),
