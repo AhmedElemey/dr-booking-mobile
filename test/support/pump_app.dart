@@ -40,6 +40,11 @@ Future<void> pumpMoonlight(
     ),
   );
   await tester.pumpAndSettle();
+  if (phase2) {
+    // The switches arrive from the mock API after the first frame.
+    await tester.pump(const Duration(seconds: 2));
+    await tester.pumpAndSettle();
+  }
 }
 
 /// Advances time in small steps. `pumpAndSettle` cannot be used while the OTP
