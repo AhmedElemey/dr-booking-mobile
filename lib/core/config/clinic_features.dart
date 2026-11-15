@@ -9,6 +9,19 @@ class ClinicFeatures {
     required this.smsNotifications,
     required this.englishLanguage,
     required this.multiBranch,
+    required this.videoConsultation,
+    required this.waitingList,
+    required this.familyAccounts,
+    required this.whatsappReminders,
+    required this.onlinePayments,
+    required this.insurance,
+    required this.holidayCalendar,
+    required this.workingHoursTemplates,
+    required this.patientRecords,
+    required this.reviews,
+    required this.promotions,
+    required this.recallCampaigns,
+    required this.reports,
   });
 
   final bool mobileApp;
@@ -19,6 +32,37 @@ class ClinicFeatures {
   final bool smsNotifications;
   final bool englishLanguage;
   final bool multiBranch;
+  final bool videoConsultation;
+  final bool waitingList;
+  final bool familyAccounts;
+  final bool whatsappReminders;
+  final bool onlinePayments;
+  final bool insurance;
+  final bool holidayCalendar;
+  final bool workingHoursTemplates;
+  final bool patientRecords;
+  final bool reviews;
+  final bool promotions;
+  final bool recallCampaigns;
+  final bool reports;
+
+  /// The thirteen phase 2 switches; every one defaults to off in the template
+  /// clinic.config.json.
+  static const phase2Keys = [
+    'videoConsultation',
+    'waitingList',
+    'familyAccounts',
+    'whatsappReminders',
+    'onlinePayments',
+    'insurance',
+    'holidayCalendar',
+    'workingHoursTemplates',
+    'patientRecords',
+    'reviews',
+    'promotions',
+    'recallCampaigns',
+    'reports',
+  ];
 
   /// Reads [json], taking any missing or non-boolean key from [defaults] and
   /// ignoring unknown keys.
@@ -43,6 +87,22 @@ class ClinicFeatures {
       smsNotifications: pick('smsNotifications', defaults.smsNotifications),
       englishLanguage: pick('englishLanguage', defaults.englishLanguage),
       multiBranch: pick('multiBranch', defaults.multiBranch),
+      videoConsultation: pick('videoConsultation', defaults.videoConsultation),
+      waitingList: pick('waitingList', defaults.waitingList),
+      familyAccounts: pick('familyAccounts', defaults.familyAccounts),
+      whatsappReminders: pick('whatsappReminders', defaults.whatsappReminders),
+      onlinePayments: pick('onlinePayments', defaults.onlinePayments),
+      insurance: pick('insurance', defaults.insurance),
+      holidayCalendar: pick('holidayCalendar', defaults.holidayCalendar),
+      workingHoursTemplates: pick(
+        'workingHoursTemplates',
+        defaults.workingHoursTemplates,
+      ),
+      patientRecords: pick('patientRecords', defaults.patientRecords),
+      reviews: pick('reviews', defaults.reviews),
+      promotions: pick('promotions', defaults.promotions),
+      recallCampaigns: pick('recallCampaigns', defaults.recallCampaigns),
+      reports: pick('reports', defaults.reports),
     );
   }
 
@@ -55,6 +115,19 @@ class ClinicFeatures {
     'smsNotifications': smsNotifications,
     'englishLanguage': englishLanguage,
     'multiBranch': multiBranch,
+    'videoConsultation': videoConsultation,
+    'waitingList': waitingList,
+    'familyAccounts': familyAccounts,
+    'whatsappReminders': whatsappReminders,
+    'onlinePayments': onlinePayments,
+    'insurance': insurance,
+    'holidayCalendar': holidayCalendar,
+    'workingHoursTemplates': workingHoursTemplates,
+    'patientRecords': patientRecords,
+    'reviews': reviews,
+    'promotions': promotions,
+    'recallCampaigns': recallCampaigns,
+    'reports': reports,
   };
 
   ClinicFeatures copyWith({
@@ -66,6 +139,19 @@ class ClinicFeatures {
     bool? smsNotifications,
     bool? englishLanguage,
     bool? multiBranch,
+    bool? videoConsultation,
+    bool? waitingList,
+    bool? familyAccounts,
+    bool? whatsappReminders,
+    bool? onlinePayments,
+    bool? insurance,
+    bool? holidayCalendar,
+    bool? workingHoursTemplates,
+    bool? patientRecords,
+    bool? reviews,
+    bool? promotions,
+    bool? recallCampaigns,
+    bool? reports,
   }) => ClinicFeatures(
     mobileApp: mobileApp ?? this.mobileApp,
     website: website ?? this.website,
@@ -75,6 +161,19 @@ class ClinicFeatures {
     smsNotifications: smsNotifications ?? this.smsNotifications,
     englishLanguage: englishLanguage ?? this.englishLanguage,
     multiBranch: multiBranch ?? this.multiBranch,
+    videoConsultation: videoConsultation ?? this.videoConsultation,
+    waitingList: waitingList ?? this.waitingList,
+    familyAccounts: familyAccounts ?? this.familyAccounts,
+    whatsappReminders: whatsappReminders ?? this.whatsappReminders,
+    onlinePayments: onlinePayments ?? this.onlinePayments,
+    insurance: insurance ?? this.insurance,
+    holidayCalendar: holidayCalendar ?? this.holidayCalendar,
+    workingHoursTemplates: workingHoursTemplates ?? this.workingHoursTemplates,
+    patientRecords: patientRecords ?? this.patientRecords,
+    reviews: reviews ?? this.reviews,
+    promotions: promotions ?? this.promotions,
+    recallCampaigns: recallCampaigns ?? this.recallCampaigns,
+    reports: reports ?? this.reports,
   );
 
   @override
@@ -87,10 +186,23 @@ class ClinicFeatures {
       other.pushReminders == pushReminders &&
       other.smsNotifications == smsNotifications &&
       other.englishLanguage == englishLanguage &&
-      other.multiBranch == multiBranch;
+      other.multiBranch == multiBranch &&
+      other.videoConsultation == videoConsultation &&
+      other.waitingList == waitingList &&
+      other.familyAccounts == familyAccounts &&
+      other.whatsappReminders == whatsappReminders &&
+      other.onlinePayments == onlinePayments &&
+      other.insurance == insurance &&
+      other.holidayCalendar == holidayCalendar &&
+      other.workingHoursTemplates == workingHoursTemplates &&
+      other.patientRecords == patientRecords &&
+      other.reviews == reviews &&
+      other.promotions == promotions &&
+      other.recallCampaigns == recallCampaigns &&
+      other.reports == reports;
 
   @override
-  int get hashCode => Object.hash(
+  int get hashCode => Object.hashAll([
     mobileApp,
     website,
     guestBrowsing,
@@ -99,7 +211,20 @@ class ClinicFeatures {
     smsNotifications,
     englishLanguage,
     multiBranch,
-  );
+    videoConsultation,
+    waitingList,
+    familyAccounts,
+    whatsappReminders,
+    onlinePayments,
+    insurance,
+    holidayCalendar,
+    workingHoursTemplates,
+    patientRecords,
+    reviews,
+    promotions,
+    recallCampaigns,
+    reports,
+  ]);
 
   @override
   String toString() => 'ClinicFeatures(${toJson()})';

@@ -7,6 +7,7 @@ import '../../../core/l10n/generated/app_localizations.dart';
 import '../../../core/l10n/locale_controller.dart';
 import '../../../shared/widgets/error_view.dart';
 import '../../clinic_config/presentation/features_controller.dart';
+import '../../promotions/presentation/offers_strip.dart';
 import '../../profile/presentation/language_switcher.dart';
 import '../../search/presentation/search_providers.dart';
 
@@ -99,6 +100,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               orElse: () => const SizedBox.shrink(),
             ),
           ],
+          const OffersStrip(),
           const SizedBox(height: 24),
           Text(l10n.specialtiesTitle, style: theme.textTheme.titleMedium),
           const SizedBox(height: 12),

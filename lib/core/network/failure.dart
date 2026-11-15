@@ -9,6 +9,7 @@ class Failure implements Exception {
     this.statusCode,
     this.detail,
     this.feature,
+    this.reason,
     this.fieldErrors = const {},
   });
 
@@ -23,6 +24,9 @@ class Failure implements Exception {
 
   /// For `FEATURE_DISABLED`: the feature switch that is off.
   final String? feature;
+
+  /// For `COUPON_INVALID`: why the code was refused (`Expired`, `Exhausted`...).
+  final String? reason;
   final Map<String, List<String>> fieldErrors;
 
   factory Failure.fromDio(DioException error) {
@@ -38,6 +42,7 @@ class Failure implements Exception {
         statusCode: status,
         detail: data['detail'] as String?,
         feature: data['feature'] as String?,
+        reason: data['reason'] as String?,
         fieldErrors: _fieldErrors(data['errors']),
       );
     }

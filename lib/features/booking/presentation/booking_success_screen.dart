@@ -6,6 +6,9 @@ import 'package:url_launcher/url_launcher.dart';
 import '../../../core/format/clinic_time.dart';
 import '../../../core/config/brand_l10n.dart';
 import '../../../core/l10n/generated/app_localizations.dart';
+import '../../../core/l10n/enum_labels.dart';
+import '../../appointments/presentation/appointment_extras.dart';
+import '../../clinic_config/presentation/features_controller.dart';
 import 'booking_providers.dart';
 import 'calendar_link.dart';
 
@@ -19,6 +22,7 @@ class BookingSuccessScreen extends ConsumerWidget {
     final theme = Theme.of(context);
     final locale = Localizations.localeOf(context).languageCode;
     final appointment = ref.watch(lastBookingProvider);
+    final features = ref.watch(featuresProvider);
     if (appointment == null) return const Scaffold();
 
     return Scaffold(
@@ -73,14 +77,30 @@ class BookingSuccessScreen extends ConsumerWidget {
                         icon: Icons.place_outlined,
                         text: appointment.clinic.address!,
                       ),
-                    _Line(
-                      icon: Icons.payments_outlined,
-                      text: l10n.payAtClinic,
-                    ),
+                    if (features.familyAccounts &&
+                        appointment.familyMember != null)
+                      _Line(
+                        icon: Icons.family_restroom_outlined,
+                        text: l10n.forPersonLabel(appointment.familyMember!),
+                      ),
+                    if (features.videoConsultation && appointment.isVideo)
+                      _Line(
+                        icon: Icons.videocam_outlined,
+                        text: l10n.videoVisit,
+                      ),
+                    if (!features.onlinePayments && !features.promotions)
+                      _Line(
+                        icon: Icons.payments_outlined,
+                        text: l10n.payAtClinic,
+                      ),
                   ],
                 ),
               ),
             ),
+            if (features.onlinePayments || features.promotions) ...[
+              const SizedBox(height: 12),
+              PriceCard(appointment: appointment),
+            ],
             const SizedBox(height: 24),
             OutlinedButton.icon(
               key: const Key('addToCalendar'),

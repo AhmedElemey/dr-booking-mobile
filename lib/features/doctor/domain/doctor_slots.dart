@@ -36,17 +36,53 @@ class SlotDay {
   );
 }
 
+/// A day the clinic is closed for a holiday (`closedDates`).
+class ClosedDate {
+  const ClosedDate({required this.date, required this.name});
+
+  /// Clinic-local calendar date, `yyyy-MM-dd`.
+  final String date;
+  final String name;
+
+  factory ClosedDate.fromJson(Map<String, dynamic> json) => ClosedDate(
+    date: (json['date'] as String).substring(0, 10),
+    name: (json['name'] as String?) ?? '',
+  );
+}
+
 /// `GET /doctors/{idOrSlug}/slots`: open slots grouped by clinic-local day.
 class DoctorSlots {
   const DoctorSlots({
     required this.doctorId,
     required this.timezone,
     required this.days,
+    this.closedDates = const [],
   });
 
   final String doctorId;
   final String timezone;
   final List<SlotDay> days;
+
+  /// Holidays in the window (empty unless the clinic uses the holiday calendar).
+  final List<ClosedDate> closedDates;
+
+  /// The clinic's calendar date at [nowUtc] (date only, zone-less). The API
+  /// sends no zone offset, so it is worked out from the first slot, whose UTC
+  /// instant and clinic wall-clock time are both known. Null without slots.
+  DateTime? clinicToday(DateTime nowUtc) {
+    for (final day in days) {
+      for (final slot in day.slots) {
+        final parts = day.date.substring(0, 10).split('-').map(int.parse);
+        final [y, m, d] = parts.toList();
+        final hm = slot.local.split(':').map(int.parse).toList();
+        final wall = DateTime.utc(y, m, d, hm[0], hm[1]);
+        final offset = wall.difference(slot.startsAt.toUtc());
+        final local = nowUtc.toUtc().add(offset);
+        return DateTime(local.year, local.month, local.day);
+      }
+    }
+    return null;
+  }
 
   bool get isEmpty => days.every((d) => d.slots.isEmpty);
 
@@ -57,5 +93,18 @@ class DoctorSlots {
       for (final d in json['days'] as List)
         SlotDay.fromJson(d as Map<String, dynamic>),
     ],
+    closedDates: [
+      if (json['closedDates'] is List)
+        for (final c in json['closedDates'] as List)
+          ClosedDate.fromJson(c as Map<String, dynamic>),
+    ],
   );
+
+  /// The holiday on [date] (`yyyy-MM-dd`), if the clinic is closed that day.
+  ClosedDate? closedOn(String date) {
+    for (final c in closedDates) {
+      if (c.date == date) return c;
+    }
+    return null;
+  }
 }

@@ -7,6 +7,7 @@ class Env {
     required this.flavor,
     required this.apiBaseUrl,
     this.useMockApi = false,
+    this.demoData = false,
   });
 
   final AppFlavor flavor;
@@ -14,6 +15,9 @@ class Env {
 
   /// Serve every API call from in-app fixtures instead of the network (demo mode).
   final bool useMockApi;
+
+  /// Demo mode only: extra showcase data (a video visit open to join now).
+  final bool demoData;
 
   static const dev = Env(
     flavor: AppFlavor.dev,
@@ -33,5 +37,13 @@ class Env {
     flavor: AppFlavor.dev,
     apiBaseUrl: 'https://mock.moonlight.local',
     useMockApi: true,
+  );
+
+  /// The demo build (lib/main_mock.dart): the mock API plus showcase data.
+  static const demo = Env(
+    flavor: AppFlavor.dev,
+    apiBaseUrl: 'https://mock.moonlight.local',
+    useMockApi: true,
+    demoData: true,
   );
 }

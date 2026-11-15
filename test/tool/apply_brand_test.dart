@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'dart:io';
 
 import 'package:flutter_test/flutter_test.dart';
+import 'package:moonlight/core/config/clinic_features.dart';
 
 import '../../tool/apply_brand.dart';
 
@@ -21,6 +22,7 @@ final _tracked = [
   'clinic.config.schema.json',
   'branding/logo.svg',
   'android/app/build.gradle.kts',
+  'android/app/src/main/AndroidManifest.xml',
   'android/app/src/main/kotlin/$_currentPackagePath/MainActivity.kt',
   'ios/Runner.xcodeproj/project.pbxproj',
   'ios/Runner/Info.plist',
@@ -59,6 +61,23 @@ void main() {
     expect(stale, isEmpty, reason: 'run `dart run tool/apply_brand.dart`');
   });
 
+  test('every phase 2 feature key is in the config, schema and defaults', () {
+    final schema = jsonDecode(
+      File('clinic.config.schema.json').readAsStringSync(),
+    ) as Map<String, dynamic>;
+    final features =
+        ((schema['properties'] as Map)['features'] as Map)
+            as Map<String, dynamic>;
+    final config = _currentConfig['features'] as Map<String, dynamic>;
+    for (final key in ClinicFeatures.phase2Keys) {
+      expect(features['required'], contains(key));
+      expect((features['properties'] as Map).containsKey(key), isTrue);
+      expect(config[key], isFalse, reason: '$key is off in the template');
+    }
+    expect(ClinicFeatures.phase2Keys, hasLength(13));
+    expect(featureKeys, containsAll(ClinicFeatures.phase2Keys));
+  });
+
   test('applying today\'s config to a copy changes nothing', () {
     final dir = _scratchProject();
     final before = _snapshot(dir);
@@ -84,7 +103,9 @@ void main() {
         'androidApplicationId': 'com.smilecare.patient',
         'iosBundleId': 'com.smilecare.Patient',
       };
-      (c['features'] as Map<String, dynamic>)['guestBrowsing'] = false;
+      (c['features'] as Map<String, dynamic>)
+        ..['guestBrowsing'] = false
+        ..['onlinePayments'] = true;
     });
 
     final errors = <String>[];
@@ -136,6 +157,23 @@ void main() {
       contains('<key>CFBundleDisplayName</key>\n\t<string>Smile Care</string>'),
     );
 
+    // The payment checkout returns to `<androidApplicationId>://payment-return`.
+    expect(
+      snapshot['android/app/src/main/AndroidManifest.xml'],
+      contains(
+        '<data android:scheme="com.smilecare.patient" '
+        'android:host="payment-return"/>',
+      ),
+    );
+    expect(
+      snapshot['android/app/src/main/AndroidManifest.xml'],
+      isNot(contains('android:scheme="$_currentAndroidId"')),
+    );
+    expect(
+      snapshot['ios/Runner/Info.plist'],
+      contains('<string>com.smilecare.patient</string>'),
+    );
+
     final manifest = jsonDecode(snapshot['web/manifest.json']!) as Map;
     expect(manifest['name'], 'Smile Care');
     expect(manifest['short_name'], 'Smile Care');
@@ -148,6 +186,12 @@ void main() {
     expect(brand, contains('Color(0xFFAABBCC)'));
     expect(brand, contains("'+201111111111'"));
     expect(brand, contains('guestBrowsing: false,'));
+    expect(brand, contains('onlinePayments: true,'));
+    expect(brand, contains('waitingList: false,'));
+    expect(
+      brand,
+      contains("static const paymentReturnUrl = 'com.smilecare.patient://"),
+    );
 
     // Second run: no changes at all.
     final second = applyBrand(dir.path, errors: errors);
@@ -202,5 +246,57 @@ void main() {
         contains('does not exist'),
       );
     });
+
+    test('rejects an underscore in the application id (URI scheme)', () {
+      for (final id in [
+        'com.my_clinic.app',
+        'com.clinic.app_2',
+        'my_app.clinic',
+      ]) {
+        final errors = problemsAfter(
+          (c) => (c['mobile'] as Map)['androidApplicationId'] = id,
+        );
+        expect(errors, hasLength(1), reason: id);
+        expect(errors.single, contains('androidApplicationId'));
+        expect(errors.single, contains('"_"'));
+      }
+    });
+
+    test('the schema pattern itself has no underscore', () {
+      final schema = jsonDecode(
+        File('clinic.config.schema.json').readAsStringSync(),
+      ) as Map<String, dynamic>;
+      final mobile = (schema['properties'] as Map)['mobile'] as Map;
+      final pattern =
+          (((mobile['properties'] as Map)['androidApplicationId'])
+                  as Map)['pattern']
+              as String;
+      expect(pattern.contains('_'), isFalse);
+      final re = RegExp(pattern);
+      expect(re.hasMatch('com.moonlight.app'), isTrue);
+      expect(re.hasMatch('com.my_clinic.app'), isFalse);
+    });
+
+    test('ids with digits and several segments still pass', () {
+      final dir = _scratchProject();
+      _editConfig(
+        dir,
+        (c) => (c['mobile'] as Map)['androidApplicationId'] =
+            'eg.clinic2.patient.app',
+      );
+      final errors = <String>[];
+      applyBrand(dir.path, errors: errors);
+      expect(errors, isEmpty);
+    });
+
+    test(
+      'the manifest keeps the single-task launch mode for the payment return',
+      () {
+        expect(
+          File('android/app/src/main/AndroidManifest.xml').readAsStringSync(),
+          contains('android:launchMode="singleTask"'),
+        );
+      },
+    );
   });
 }

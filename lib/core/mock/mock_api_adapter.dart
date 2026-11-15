@@ -5,6 +5,8 @@ import 'dart:typed_data';
 import 'package:dio/dio.dart';
 
 import '../config/brand.g.dart';
+import '../config/clinic_features.dart';
+import 'mock_phase2_data.dart';
 
 /// Demo-mode backend: a stateful, in-memory implementation of the endpoints
 /// the patient app uses (spec §4), served through Dio's adapter so the real
@@ -17,7 +19,10 @@ import '../config/brand.g.dart';
 ///
 /// Clinic time is fixed at UTC+2 here; the real API derives it from tzdata.
 class MockApiAdapter implements HttpClientAdapter {
-  MockApiAdapter({this.latency = const Duration(milliseconds: 250)}) {
+  MockApiAdapter({
+    this.latency = const Duration(milliseconds: 250),
+    this.demo = false,
+  }) {
     _seedAppointments();
   }
 
@@ -27,9 +32,19 @@ class MockApiAdapter implements HttpClientAdapter {
 
   final Duration latency;
 
-  /// The clinic's feature switches served by `GET /features`. Starts from the
-  /// brand defaults; change entries to preview a clinic with features off.
-  final Map<String, bool> features = Map.of(Brand.defaultFeatures.toJson());
+  /// Demo mode (not unit tests): also seeds a video consultation that is open
+  /// to join right now, and allows more upcoming bookings.
+  final bool demo;
+
+  /// The clinic's feature switches served by `GET /features`: the brand
+  /// defaults with all 13 phase 2 features on. Change entries to preview a
+  /// clinic with features off.
+  final Map<String, bool> features = {
+    ...Brand.defaultFeatures.toJson(),
+    for (final key in ClinicFeatures.phase2Keys) key: true,
+  };
+
+  bool _on(String key) => features[key] == true;
 
   // --- fixtures --------------------------------------------------------
 
@@ -100,6 +115,14 @@ class MockApiAdapter implements HttpClientAdapter {
   String? _validAccess;
   String? _validRefresh;
   _MockUser _user = _MockUser.demo();
+  int _nextId = 1;
+  final List<_MockFamily> _family = [
+    _MockFamily('fam-1', 'يوسف نور', 'Child', '2016-04-12', 'Male'),
+    _MockFamily('fam-2', 'ليلى نور', 'Child', '2019-09-03', 'Female'),
+    _MockFamily('fam-3', 'سمير عبد الله', 'Parent', '1958-01-20', 'Male'),
+  ];
+  final List<_MockWaiting> _waiting = [];
+  final Map<String, _MockPayment> _payments = {};
 
   void _seedAppointments() {
     final today = _clinicNow();
@@ -116,6 +139,7 @@ class MockApiAdapter implements HttpClientAdapter {
         minutes: 30,
         serviceIndex: svc,
         status: 'Confirmed',
+        price: _priceFor(doctor, svc),
       );
     }
 
@@ -130,16 +154,93 @@ class MockApiAdapter implements HttpClientAdapter {
         serviceIndex: 1,
         status: status,
         cancelledBy: status == 'Cancelled' ? 'Patient' : null,
+        price: _priceFor(doctor, 1),
       );
     }
 
+    // A child's check-up with a coupon, still to be paid and covered by Bupa.
+    final first = upcoming(1, 0, 3, 10, 0)
+      ..familyMemberId = 'fam-1'
+      ..couponCode = 'SMILE20'
+      ..discount = 60
+      ..insuranceProviderId = 'ins-bupa'
+      ..insuranceMember = 'BUP-2043819'
+      ..insuranceStatus = 'Pending';
+    // A video consultation that is already paid.
+    final second = upcoming(2, 1, 6, 17, 2)
+      ..mode = 'Video'
+      ..payment = 'Paid';
+    final completed = past(3, 2, 20, 'Completed')..payment = 'Paid';
     _appointments.addAll([
-      upcoming(1, 0, 3, 10, 0),
-      upcoming(2, 1, 6, 17, 2),
-      past(3, 2, 20, 'Completed'),
+      first,
+      second,
+      completed,
       past(4, 0, 45, 'Cancelled'),
     ]);
+
+    _waiting.addAll([
+      _MockWaiting(
+        'wl-1',
+        0,
+        _plainDay(today, 2),
+        'Waiting',
+        DateTime.now().toUtc().subtract(const Duration(days: 1)),
+      ),
+      _MockWaiting(
+        'wl-2',
+        2,
+        _plainDay(today, 1),
+        'Notified',
+        DateTime.now().toUtc().subtract(const Duration(hours: 2)),
+        notifiedAt: DateTime.now().toUtc().subtract(const Duration(hours: 2)),
+      ),
+      _MockWaiting(
+        'wl-3',
+        1,
+        _plainDay(today, -4),
+        'Expired',
+        DateTime.now().toUtc().subtract(const Duration(days: 9)),
+      ),
+    ]);
+
+    if (demo) {
+      // Starts in 10 minutes: inside the video join window.
+      final soon = today.add(const Duration(minutes: 10));
+      final local = DateTime(
+        soon.year,
+        soon.month,
+        soon.day,
+        soon.hour,
+        soon.minute,
+      );
+      final slotId = _slotId(0, local);
+      _reserved.add(slotId);
+      _appointments.add(
+        _MockAppointment(
+          id: 'apt-5',
+          slotId: slotId,
+          doctorIndex: 0,
+          startsAtLocal: local,
+          minutes: 30,
+          serviceIndex: 0,
+          status: 'Confirmed',
+          price: _priceFor(0, 0),
+        )..mode = 'Video',
+      );
+    }
   }
+
+  static DateTime _plainDay(DateTime base, int offset) =>
+      DateTime(base.year, base.month, base.day + offset);
+
+  /// Service price, or the doctor's consultation fee.
+  static num _priceFor(int doctor, int? service) =>
+      service == null || service < 0
+      ? _doctors[doctor].fee
+      : _services[service].$5;
+
+  /// The holiday in the demo window, relative to today.
+  static const _holidayOffset = 5;
 
   /// "Now" on the clinic wall clock, as a zone-less date-time.
   static DateTime _clinicNow() {
@@ -202,6 +303,11 @@ class MockApiAdapter implements HttpClientAdapter {
     final path = options.path.replaceFirst(RegExp(r'^/api/v1'), '');
     final method = options.method.toUpperCase();
     final body = _body(options.data);
+    final attachment = RegExp(r'^/me/records/([^/]+)/attachment$')
+        .firstMatch(path);
+    if (method == 'GET' && attachment != null) {
+      return _attachment(attachment.group(1)!);
+    }
     try {
       final result = _route(method, path, options, body, lang);
       return _json(result.$1, result.$2);
@@ -212,6 +318,8 @@ class MockApiAdapter implements HttpClientAdapter {
         'status': e.status,
         'code': e.code,
         'detail': e.detail,
+        'reason': ?e.reason,
+        'feature': ?e._feature,
       });
     }
   }
@@ -225,6 +333,26 @@ class MockApiAdapter implements HttpClientAdapter {
       return jsonDecode(data) as Map<String, dynamic>;
     }
     return const {};
+  }
+
+  /// The authorized attachment download: raw bytes, not JSON.
+  ResponseBody _attachment(String id) {
+    final known = mockRecords.any((r) => r.id == id && r.attachmentUrl != null);
+    if (!known) {
+      return _json(404, {
+        'status': 404,
+        'code': 'NOT_FOUND',
+        'detail': 'Not found.',
+      });
+    }
+    return ResponseBody.fromBytes(
+      utf8.encode('%PDF-1.4\n% demo attachment\n%%EOF\n'),
+      200,
+      headers: {
+        Headers.contentTypeHeader: ['application/pdf'],
+        'content-disposition': ['attachment; filename="panorama.pdf"'],
+      },
+    );
   }
 
   ResponseBody _json(int status, Object? data) => ResponseBody.fromString(
@@ -286,15 +414,32 @@ class MockApiAdapter implements HttpClientAdapter {
       return (200, [lang == 'en' ? 'Cairo' : 'القاهرة']);
     }
     if (method == 'GET' && path == '/doctors') return (200, _search(q, lang));
-    final doctorMatch = RegExp(r'^/doctors/([^/]+)(/slots)?$').firstMatch(path);
+    final doctorMatch = RegExp(r'^/doctors/([^/]+)(/slots|/reviews)?$')
+        .firstMatch(path);
     if (method == 'GET' && doctorMatch != null) {
       final index = _doctors.indexWhere(
         (d) => d.id == doctorMatch[1] || d.slug == doctorMatch[1],
       );
       if (index < 0) throw _MockError.notFound();
-      return doctorMatch[2] == null
-          ? (200, _doctorJson(index, lang, full: true))
-          : (200, _slotsJson(index, q));
+      return switch (doctorMatch[2]) {
+        null => (200, _doctorJson(index, lang, full: true)),
+        '/slots' => (200, _slotsJson(index, q, lang)),
+        _ => (200, _reviewsPage(index, q)),
+      };
+    }
+    if (method == 'GET' && path == '/insurance-providers') {
+      if (!_on('insurance')) throw _MockError.featureDisabled('insurance');
+      return (
+        200,
+        [
+          for (final i in mockInsurers)
+            {'id': i.$1, 'name': lang == 'en' ? i.$2 : i.$3},
+        ],
+      );
+    }
+    if (method == 'GET' && path == '/promotions') {
+      if (!_on('promotions')) throw _MockError.featureDisabled('promotions');
+      return (200, _promotions(lang));
     }
 
     // Auth.
@@ -340,6 +485,8 @@ class MockApiAdapter implements HttpClientAdapter {
         _user = _user.copyWith(
           fullName: body['fullName'] as String?,
           language: body['preferredLanguage'] as String?,
+          whatsAppOptIn: body['whatsAppOptIn'] as bool?,
+          marketingOptIn: body['marketingOptIn'] as bool?,
         );
       }
       return (200, _user.toJson());
@@ -351,14 +498,18 @@ class MockApiAdapter implements HttpClientAdapter {
       return (204, null);
     }
 
+    final phase2 = _phase2Route(method, path, q, body, lang);
+    if (phase2 != null) return phase2;
+
     if (method == 'GET' && path == '/appointments') {
       return (200, _appointmentPage(q, lang));
     }
     if (method == 'POST' && path == '/appointments') {
       return (201, _book(body, lang));
     }
-    final aptMatch = RegExp(r'^/appointments/([^/]+)(?:/(cancel|reschedule))?$')
-        .firstMatch(path);
+    final aptMatch = RegExp(
+      r'^/appointments/([^/]+)(?:/(cancel|reschedule|pay|review|video))?$',
+    ).firstMatch(path);
     if (aptMatch != null) {
       final apt = _appointments.firstWhere(
         (a) => a.id == aptMatch[1],
@@ -371,6 +522,13 @@ class MockApiAdapter implements HttpClientAdapter {
           _cancel(apt, body, lang);
         case ('POST', 'reschedule'):
           _reschedule(apt, body, lang);
+        case ('POST', 'pay'):
+          return (200, _startPayment(apt));
+        case ('POST', 'review'):
+          _review(apt, body);
+          return (201, _appointmentJson(apt, lang));
+        case ('GET', 'video'):
+          return (200, _videoRoom(apt));
         default:
           throw _MockError.notFound();
       }
@@ -400,6 +558,10 @@ class MockApiAdapter implements HttpClientAdapter {
         if ((q['specialtyId'] == null ||
                 q['specialtyId'] == _doctors[i].specialtyId) &&
             (city == null || city == 'Cairo' || city == 'القاهرة') &&
+            (q['insuranceProviderId'] == null ||
+                (mockDoctorInsurers[_doctors[i].id] ?? const []).contains(
+                  q['insuranceProviderId'],
+                )) &&
             (text.isEmpty ||
                 _doctors[i].nameEn.toLowerCase().contains(text) ||
                 _doctors[i].nameAr.contains(text)))
@@ -448,6 +610,15 @@ class MockApiAdapter implements HttpClientAdapter {
       'clinic': _clinicJson(lang),
       'yearsExperience': d.years,
       'consultationFeeEgp': d.fee,
+      'offersVideo': mockVideoDoctors.contains(d.id),
+      'rating': _on('reviews') && mockRatings[d.id] != null
+          ? {'average': mockRatings[d.id]!.$1, 'count': mockRatings[d.id]!.$2}
+          : null,
+      'insuranceProviders': [
+        if (_on('insurance'))
+          for (final id in mockDoctorInsurers[d.id] ?? const <String>[])
+            {'id': id, 'name': _insurerName(id, lang)},
+      ],
       if (full) ...{
         'bio': lang == 'en' ? d.bioEn : d.bioAr,
         'services': [for (final s in _services) _serviceJson(s, lang)],
@@ -465,16 +636,30 @@ class MockApiAdapter implements HttpClientAdapter {
     'priceEgp': s.$5,
   };
 
-  Map<String, dynamic> _slotsJson(int doctor, Map<String, dynamic> q) {
+  Map<String, dynamic> _slotsJson(
+    int doctor,
+    Map<String, dynamic> q,
+    String lang,
+  ) {
     final today = _clinicNow();
     final earliest = DateTime.now().toUtc().add(const Duration(minutes: 60));
     final from = DateTime.parse('${q['from']}');
     final to = DateTime.parse('${q['to']}');
     final days = <Map<String, dynamic>>[];
+    final closed = <Map<String, dynamic>>[];
     // A week of availability starting today.
     for (var offset = 0; offset < 7; offset++) {
       final day = DateTime(today.year, today.month, today.day + offset);
       if (day.isBefore(from) || day.isAfter(to)) continue;
+      if (_on('holidayCalendar') && offset == _holidayOffset) {
+        closed.add({
+          'date': _ymd(day),
+          'name': lang == 'en' ? 'Public holiday' : 'إجازة رسمية',
+        });
+        continue;
+      }
+      // Dr. Mona is fully booked two days from now: a day to wait for.
+      if (doctor == 0 && offset == 2) continue;
       final slots = [
         for (final (id, local) in _daySlots(doctor, day))
           if (!_reserved.contains(id) && _toUtc(local).isAfter(earliest))
@@ -491,6 +676,7 @@ class MockApiAdapter implements HttpClientAdapter {
       'doctorId': _doctors[doctor].id,
       'timezone': 'Africa/Cairo',
       'days': days,
+      if (_on('holidayCalendar')) 'closedDates': closed,
     };
   }
 
@@ -515,25 +701,103 @@ class MockApiAdapter implements HttpClientAdapter {
             : 'تم حجز هذا الموعد للتو. اختر موعدًا آخر.',
       );
     }
-    final upcoming = _appointments.where((a) => a.status == 'Confirmed').length;
+    if (_on('holidayCalendar') &&
+        _plainDay(_clinicNow(), _holidayOffset) == _plainDay(local, 0)) {
+      throw _MockError(
+        409,
+        'CLINIC_CLOSED',
+        lang == 'en'
+            ? 'The clinic is closed that day.'
+            : 'العيادة مغلقة في هذا اليوم.',
+      );
+    }
+    // Feature-specific fields are ignored when their feature is off.
+    final familyId = _on('familyAccounts')
+        ? body['familyMemberId'] as String?
+        : null;
+    if (familyId != null && !_family.any((m) => m.id == familyId)) {
+      throw _MockError(422, 'VALIDATION_FAILED', 'Unknown family member.');
+    }
+    final upcoming = _appointments
+        .where((a) => a.status == 'Confirmed' && a.familyMemberId == familyId)
+        .length;
     if (upcoming >= 3) {
       throw _MockError(409, 'BOOKING_LIMIT', 'Too many upcoming appointments.');
     }
-    final serviceId = body['serviceId'];
-    final apt = _MockAppointment(
-      id: 'apt-${_nextAppointment++}',
-      slotId: slotId,
-      doctorIndex: doctor,
-      startsAtLocal: local,
-      minutes: 30,
-      serviceIndex: serviceId == null
-          ? null
-          : _services.indexWhere((s) => s.$1 == serviceId),
-      note: body['patientNote'] as String?,
-      status: 'Confirmed',
-    );
+    final video = _on('videoConsultation') && body['mode'] == 'Video';
+    if (video && !mockVideoDoctors.contains(_doctors[doctor].id)) {
+      throw _MockError(
+        422,
+        'VALIDATION_FAILED',
+        'This doctor has no video visits.',
+      );
+    }
+    final insurance = _on('insurance')
+        ? body['insurance'] as Map<String, dynamic>?
+        : null;
+    if (insurance != null &&
+        !(mockDoctorInsurers[_doctors[doctor].id] ?? const []).contains(
+          insurance['providerId'],
+        )) {
+      throw _MockError(
+        422,
+        'VALIDATION_FAILED',
+        'The doctor does not accept this insurance.',
+      );
+    }
+    final serviceId = body['serviceId'] as String?;
+    final serviceIndex = serviceId == null
+        ? null
+        : _services.indexWhere((s) => s.$1 == serviceId);
+    final price = _priceFor(doctor, serviceIndex);
+    num discount = 0;
+    final code = _on('promotions') ? body['couponCode'] as String? : null;
+    if (code != null && code.trim().isNotEmpty) {
+      final result = _evaluateCoupon(code, doctor, serviceId, price);
+      if (!result.valid) {
+        throw _MockError(
+          422,
+          'COUPON_INVALID',
+          lang == 'en'
+              ? 'This code cannot be used.'
+              : 'لا يمكن استخدام هذا الكود.',
+          reason: result.reason,
+        );
+      }
+      discount = result.discount;
+    }
+    final apt =
+        _MockAppointment(
+            id: 'apt-${_nextAppointment++}',
+            slotId: slotId,
+            doctorIndex: doctor,
+            startsAtLocal: local,
+            minutes: 30,
+            serviceIndex: serviceIndex,
+            note: body['patientNote'] as String?,
+            status: 'Confirmed',
+            price: price,
+          )
+          ..familyMemberId = familyId
+          ..mode = video ? 'Video' : 'InPerson'
+          ..couponCode = code?.trim().toUpperCase()
+          ..discount = discount;
+    if (insurance != null) {
+      apt
+        ..insuranceProviderId = insurance['providerId'] as String
+        ..insuranceMember = insurance['memberNumber'] as String?
+        ..insuranceStatus = 'Pending';
+    }
     _reserved.add(slotId);
     _appointments.add(apt);
+    // Booking the doctor on a waited-for day closes the waiting entry.
+    for (final w in _waiting) {
+      if (w.doctorIndex == doctor &&
+          w.date == _plainDay(local, 0) &&
+          (w.status == 'Waiting' || w.status == 'Notified')) {
+        w.status = 'Booked';
+      }
+    }
     return _appointmentJson(apt, lang);
   }
 
@@ -544,6 +808,8 @@ class MockApiAdapter implements HttpClientAdapter {
       ..status = 'Cancelled'
       ..cancelledBy = 'Patient'
       ..cancelReason = body['reason'] as String?;
+    // A paid appointment is refunded automatically.
+    if (apt.payment == 'Paid') apt.payment = 'Refunded';
   }
 
   void _reschedule(
@@ -639,6 +905,382 @@ class MockApiAdapter implements HttpClientAdapter {
       'patientNote': a.note,
       'cancelledBy': a.cancelledBy,
       'cancelReason': a.cancelReason,
+      'familyMember': _familyRef(a.familyMemberId),
+      'mode': a.mode,
+      'priceEgp': a.price,
+      'discountEgp': a.discount,
+      'totalEgp': a.price - a.discount,
+      'paymentStatus': a.payment,
+      'insurance': a.insuranceProviderId == null
+          ? null
+          : {
+              'provider': {
+                'id': a.insuranceProviderId,
+                'name': _insurerName(a.insuranceProviderId!, lang),
+              },
+              'memberNumber': a.insuranceMember,
+              'status': a.insuranceStatus,
+              'note': a.insuranceNote,
+            },
+      'canReview':
+          _on('reviews') && a.status == 'Completed' && a.reviewRating == null,
+      'review': a.reviewRating == null
+          ? null
+          : {'rating': a.reviewRating, 'comment': a.reviewComment},
+    };
+  }
+
+  Map<String, dynamic>? _familyRef(String? id) {
+    if (id == null) return null;
+    final m = _family.firstWhere((m) => m.id == id);
+    return {'id': m.id, 'fullName': m.fullName, 'relation': m.relation};
+  }
+
+  String _insurerName(String id, String lang) {
+    final i = mockInsurers.firstWhere((i) => i.$1 == id);
+    return lang == 'en' ? i.$2 : i.$3;
+  }
+
+  // --- phase 2 handlers ---------------------------------------------------
+
+  /// Family, waiting list, coupons, payments and records. Null when [path] is
+  /// not one of theirs.
+  (int, Object?)? _phase2Route(
+    String method,
+    String path,
+    Map<String, dynamic> q,
+    Map<String, dynamic> body,
+    String lang,
+  ) {
+    void requireOn(String key) {
+      if (!_on(key)) throw _MockError.featureDisabled(key);
+    }
+
+    if (path == '/me/family' || path.startsWith('/me/family/')) {
+      requireOn('familyAccounts');
+      final id = path == '/me/family'
+          ? null
+          : path.substring('/me/family/'.length);
+      switch ((method, id)) {
+        case ('GET', null):
+          return (200, [for (final m in _family) m.toJson()]);
+        case ('POST', null):
+          if (_family.length >= 10) {
+            throw _MockError(
+              422,
+              'VALIDATION_FAILED',
+              'At most 10 family members.',
+            );
+          }
+          final member = _MockFamily(
+            'fam-${_nextId++ + 10}',
+            (body['fullName'] as String).trim(),
+            body['relation'] as String,
+            body['dateOfBirth'] as String?,
+            body['gender'] as String?,
+          );
+          _family.add(member);
+          return (201, member.toJson());
+        case ('PUT', final String id):
+          final index = _family.indexWhere((m) => m.id == id);
+          if (index < 0) throw _MockError.notFound();
+          _family[index] = _MockFamily(
+            id,
+            (body['fullName'] as String).trim(),
+            body['relation'] as String,
+            body['dateOfBirth'] as String?,
+            body['gender'] as String?,
+          );
+          return (200, _family[index].toJson());
+        case ('DELETE', final String id):
+          _family.removeWhere((m) => m.id == id);
+          return (204, null);
+      }
+    }
+
+    if (path == '/waiting-list' || path.startsWith('/waiting-list/')) {
+      requireOn('waitingList');
+      if (method == 'GET') {
+        return (
+          200,
+          [for (final w in _waiting.reversed) _waitingJson(w, lang)],
+        );
+      }
+      if (method == 'POST') {
+        final doctorIndex = _doctors.indexWhere(
+          (d) => d.id == body['doctorId'],
+        );
+        if (doctorIndex < 0) throw _MockError.notFound();
+        final date = DateTime.parse('${body['date']}');
+        final day = DateTime(date.year, date.month, date.day);
+        final exists = _waiting.any(
+          (w) =>
+              w.doctorIndex == doctorIndex &&
+              w.date == day &&
+              w.familyMemberId == body['familyMemberId'] &&
+              (w.status == 'Waiting' || w.status == 'Notified'),
+        );
+        if (exists) {
+          throw _MockError(
+            409,
+            'ALREADY_WAITING',
+            lang == 'en'
+                ? 'You are already on this waiting list.'
+                : 'أنت بالفعل في قائمة الانتظار.',
+          );
+        }
+        final entry = _MockWaiting(
+          'wl-${_nextId++ + 10}',
+          doctorIndex,
+          day,
+          'Waiting',
+          DateTime.now().toUtc(),
+          familyMemberId: body['familyMemberId'] as String?,
+        );
+        _waiting.add(entry);
+        return (201, _waitingJson(entry, lang));
+      }
+      if (method == 'DELETE') {
+        final id = path.substring('/waiting-list/'.length);
+        final entry = _waiting.firstWhere(
+          (w) => w.id == id,
+          orElse: () => throw _MockError.notFound(),
+        );
+        entry.status = 'Cancelled';
+        return (204, null);
+      }
+    }
+
+    if (method == 'POST' && path == '/coupons/validate') {
+      requireOn('promotions');
+      final doctorIndex = _doctors.indexWhere((d) => d.id == body['doctorId']);
+      if (doctorIndex < 0) throw _MockError.notFound();
+      final serviceId = body['serviceId'] as String?;
+      final serviceIndex = serviceId == null
+          ? null
+          : _services.indexWhere((s) => s.$1 == serviceId);
+      final price = _priceFor(doctorIndex, serviceIndex);
+      final result = _evaluateCoupon(
+        '${body['code']}',
+        doctorIndex,
+        serviceId,
+        price,
+      );
+      return (
+        200,
+        {
+          'valid': result.valid,
+          'discountEgp': result.discount,
+          'totalEgp': price - result.discount,
+          'reason': ?result.reason,
+        },
+      );
+    }
+
+    final paymentMatch = RegExp(r'^/payments/(?:mock-checkout/)?([^/]+)$')
+        .firstMatch(path);
+    if (paymentMatch != null) {
+      requireOn('onlinePayments');
+      final payment = _payments[paymentMatch[1]];
+      if (payment == null) throw _MockError.notFound();
+      if (method == 'POST' && path.contains('/mock-checkout/')) {
+        // The demo stand-in for the provider's checkout page and webhook.
+        final paid = body['outcome'] != 'failed';
+        payment.status = paid ? 'Paid' : 'Failed';
+        _appointments.firstWhere((a) => a.id == payment.appointmentId).payment =
+            paid ? 'Paid' : 'Unpaid';
+        return (
+          200,
+          {
+            'returnUrl':
+                '${Brand.paymentReturnUrl}?paymentId=${payment.id}'
+                '&status=${paid ? 'paid' : 'failed'}',
+          },
+        );
+      }
+      return (200, payment.toJson());
+    }
+
+    if (method == 'GET' && path == '/me/records') {
+      requireOn('patientRecords');
+      final member = q['familyMemberId'] as String?;
+      final info = member == null
+          ? mockMedicalInfo
+          : mockMedicalInfoByMember[member];
+      return (
+        200,
+        {
+          'medicalInfo': info,
+          'entries': [
+            for (final r in mockRecords)
+              if (r.owner == member)
+                {
+                  'id': r.id,
+                  'kind': r.kind,
+                  'title': r.title,
+                  'body': r.body,
+                  'hasAttachment': r.attachmentUrl != null,
+                  'doctorName': r.doctorName,
+                  'createdAt': _iso(
+                    DateTime.now().toUtc().subtract(Duration(days: r.daysAgo)),
+                  ),
+                },
+          ],
+        },
+      );
+    }
+    return null;
+  }
+
+  Map<String, dynamic> _waitingJson(_MockWaiting w, String lang) {
+    final d = _doctors[w.doctorIndex];
+    return {
+      'id': w.id,
+      'doctor': {
+        'id': d.id,
+        'slug': d.slug,
+        'name': lang == 'en' ? d.nameEn : d.nameAr,
+        'photoUrl': null,
+      },
+      'date': _ymd(w.date),
+      'status': w.status,
+      'familyMember': _familyRef(w.familyMemberId),
+      'notifiedAt': w.notifiedAt == null ? null : _iso(w.notifiedAt!),
+    };
+  }
+
+  List<Map<String, dynamic>> _promotions(String lang) {
+    final now = _clinicNow();
+    return [
+      for (final o in mockOffers)
+        {
+          'code': o.code,
+          'title': lang == 'en' ? o.titleEn : o.titleAr,
+          'description': lang == 'en' ? o.descriptionEn : o.descriptionAr,
+          'discountType': o.percent ? 'Percent' : 'Fixed',
+          'value': o.value,
+          'validTo': _ymd(_plainDay(now, o.validInDays)),
+          'doctorId': o.doctorId,
+          'serviceId': o.serviceId,
+        },
+    ];
+  }
+
+  ({bool valid, num discount, String? reason}) _evaluateCoupon(
+    String raw,
+    int doctor,
+    String? serviceId,
+    num price,
+  ) {
+    final code = raw.trim().toUpperCase();
+    ({bool valid, num discount, String? reason}) no(String reason) =>
+        (valid: false, discount: 0, reason: reason);
+    if (code == mockExpiredCode) return no('Expired');
+    if (code == mockUsedCode) return no('PerPatientLimit');
+    final offer = mockOffers.where((o) => o.code == code).firstOrNull;
+    if (offer == null) return no('NotFound');
+    if (offer.doctorId != null && offer.doctorId != _doctors[doctor].id) {
+      return no('NotApplicable');
+    }
+    if (offer.serviceId != null && offer.serviceId != serviceId) {
+      return no('NotApplicable');
+    }
+    if (price <= 0) return no('NoPrice');
+    num discount = offer.percent ? price * offer.value / 100 : offer.value;
+    if (offer.maxDiscount != null && discount > offer.maxDiscount!) {
+      discount = offer.maxDiscount!;
+    }
+    if (discount > price) discount = price;
+    return (valid: true, discount: discount.round(), reason: null);
+  }
+
+  Map<String, dynamic> _reviewsPage(int doctor, Map<String, dynamic> q) {
+    if (!_on('reviews')) throw _MockError.featureDisabled('reviews');
+    final all = mockReviews[_doctors[doctor].id] ?? const <MockReview>[];
+    final page = int.parse('${q['page'] ?? 1}');
+    final size = int.parse('${q['pageSize'] ?? 10}');
+    return {
+      'items': [
+        for (final r in all.skip((page - 1) * size).take(size))
+          {
+            'rating': r.rating,
+            'comment': r.comment,
+            'patientFirstName': r.name,
+            'createdAt': _iso(
+              DateTime.now().toUtc().subtract(Duration(days: r.daysAgo)),
+            ),
+            'reply': r.reply,
+          },
+      ],
+      'page': page,
+      'pageSize': size,
+      'totalCount': all.length,
+    };
+  }
+
+  Map<String, dynamic> _startPayment(_MockAppointment apt) {
+    if (!_on('onlinePayments')) {
+      throw _MockError.featureDisabled('onlinePayments');
+    }
+    final total = apt.price - apt.discount;
+    final future = _toUtc(apt.startsAtLocal).isAfter(DateTime.now().toUtc());
+    final payable = apt.payment == 'Unpaid' || apt.payment == 'Pending';
+    if (apt.status != 'Confirmed' || !future || !payable || total <= 0) {
+      throw _MockError(
+        409,
+        'PAYMENT_NOT_ALLOWED',
+        'This appointment cannot be paid online.',
+      );
+    }
+    final payment = _MockPayment('pay-${_nextId++}', apt.id, total);
+    _payments[payment.id] = payment;
+    apt.payment = 'Pending';
+    return {
+      'paymentId': payment.id,
+      'checkoutUrl':
+          'https://mock.moonlight.local/api/v1/payments/mock-checkout/${payment.id}',
+    };
+  }
+
+  void _review(_MockAppointment apt, Map<String, dynamic> body) {
+    if (!_on('reviews')) throw _MockError.featureDisabled('reviews');
+    if (apt.reviewRating != null) {
+      throw _MockError(
+        409,
+        'ALREADY_REVIEWED',
+        'You already rated this visit.',
+      );
+    }
+    if (apt.status != 'Completed') {
+      throw _MockError(409, 'NOT_REVIEWABLE', 'This visit cannot be rated.');
+    }
+    apt
+      ..reviewRating = (body['rating'] as num).toInt()
+      ..reviewComment = body['comment'] as String?;
+  }
+
+  Map<String, dynamic> _videoRoom(_MockAppointment apt) {
+    if (!_on('videoConsultation')) {
+      throw _MockError.featureDisabled('videoConsultation');
+    }
+    final start = _toUtc(apt.startsAtLocal);
+    final opens = start.subtract(const Duration(minutes: 15));
+    final closes = start.add(Duration(minutes: apt.minutes + 30));
+    final now = DateTime.now().toUtc();
+    if (apt.mode != 'Video' ||
+        apt.status != 'Confirmed' ||
+        now.isBefore(opens) ||
+        now.isAfter(closes)) {
+      throw _MockError(
+        409,
+        'VIDEO_NOT_OPEN',
+        'The video room is not open yet.',
+      );
+    }
+    return {
+      'joinUrl': 'https://meet.jit.si/moonlight-${apt.id}-k3x9q7',
+      'opensAt': _iso(opens),
+      'closesAt': _iso(closes),
     };
   }
 }
@@ -667,6 +1309,67 @@ class _MockDoctor {
   final String bioAr;
 }
 
+class _MockFamily {
+  const _MockFamily(
+    this.id,
+    this.fullName,
+    this.relation,
+    this.dateOfBirth,
+    this.gender,
+  );
+
+  final String id;
+  final String fullName;
+  final String relation;
+  final String? dateOfBirth;
+  final String? gender;
+
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'fullName': fullName,
+    'relation': relation,
+    'dateOfBirth': dateOfBirth,
+    'gender': gender,
+    'createdAt': '2026-09-01T10:00:00Z',
+  };
+}
+
+class _MockWaiting {
+  _MockWaiting(
+    this.id,
+    this.doctorIndex,
+    this.date,
+    this.status,
+    this.createdAt, {
+    this.notifiedAt,
+    this.familyMemberId,
+  });
+
+  final String id;
+  final String? familyMemberId;
+  final int doctorIndex;
+  final DateTime date;
+  String status;
+  final DateTime createdAt;
+  final DateTime? notifiedAt;
+}
+
+class _MockPayment {
+  _MockPayment(this.id, this.appointmentId, this.amount);
+
+  final String id;
+  final String appointmentId;
+  final num amount;
+  String status = 'Pending';
+
+  Map<String, dynamic> toJson() => {
+    'id': id,
+    'appointmentId': appointmentId,
+    'amountEgp': amount,
+    'status': status,
+  };
+}
+
 class _MockAppointment {
   _MockAppointment({
     required this.id,
@@ -675,6 +1378,7 @@ class _MockAppointment {
     required this.startsAtLocal,
     required this.minutes,
     required this.status,
+    required this.price,
     this.serviceIndex,
     this.note,
     this.cancelledBy,
@@ -690,10 +1394,28 @@ class _MockAppointment {
   final String? note;
   String? cancelledBy;
   String? cancelReason;
+  String? familyMemberId;
+  String mode = 'InPerson';
+  final num price;
+  num discount = 0;
+  String? couponCode;
+  String payment = 'Unpaid';
+  String? insuranceProviderId;
+  String? insuranceMember;
+  String? insuranceStatus;
+  String? insuranceNote;
+  int? reviewRating;
+  String? reviewComment;
 }
 
 class _MockUser {
-  _MockUser({required this.phone, this.fullName, this.language = 'ar'});
+  _MockUser({
+    required this.phone,
+    this.fullName,
+    this.language = 'ar',
+    this.whatsAppOptIn = true,
+    this.marketingOptIn = true,
+  });
 
   factory _MockUser.demo({String phone = '+201012345678'}) =>
       _MockUser(phone: phone, fullName: 'نور سمير');
@@ -701,11 +1423,20 @@ class _MockUser {
   final String phone;
   final String? fullName;
   final String language;
+  final bool whatsAppOptIn;
+  final bool marketingOptIn;
 
-  _MockUser copyWith({String? fullName, String? language}) => _MockUser(
+  _MockUser copyWith({
+    String? fullName,
+    String? language,
+    bool? whatsAppOptIn,
+    bool? marketingOptIn,
+  }) => _MockUser(
     phone: phone,
     fullName: fullName ?? this.fullName,
     language: language ?? this.language,
+    whatsAppOptIn: whatsAppOptIn ?? this.whatsAppOptIn,
+    marketingOptIn: marketingOptIn ?? this.marketingOptIn,
   );
 
   Map<String, dynamic> toJson() => {
@@ -714,11 +1445,17 @@ class _MockUser {
     'fullName': fullName,
     'role': 'Patient',
     'preferredLanguage': language,
+    'whatsAppOptIn': whatsAppOptIn,
+    'marketingOptIn': marketingOptIn,
   };
 }
 
 class _MockError implements Exception {
-  _MockError(this.status, this.code, this.detail);
+  _MockError(this.status, this.code, this.detail, {this.reason});
+
+  factory _MockError.featureDisabled(String feature) =>
+      _MockError(403, 'FEATURE_DISABLED', 'This feature is turned off.')
+        .._feature = feature;
 
   factory _MockError.notFound() => _MockError(404, 'NOT_FOUND', 'Not found.');
   factory _MockError.unauthorized() =>
@@ -727,4 +1464,6 @@ class _MockError implements Exception {
   final int status;
   final String code;
   final String detail;
+  final String? reason;
+  String? _feature;
 }

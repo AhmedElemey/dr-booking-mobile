@@ -1,17 +1,22 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../core/l10n/generated/app_localizations.dart';
+import '../../features/clinic_config/presentation/features_controller.dart';
 import '../../features/doctor/domain/doctor.dart';
 import 'doctor_avatar.dart';
+import 'pill.dart';
+import 'rating_stars.dart';
 
-class DoctorCard extends StatelessWidget {
+class DoctorCard extends ConsumerWidget {
   const DoctorCard({super.key, required this.doctor, required this.onTap});
 
   final Doctor doctor;
   final VoidCallback onTap;
 
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final features = ref.watch(featuresProvider);
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
     final details = <String>[
@@ -41,6 +46,26 @@ class DoctorCard extends StatelessWidget {
                           color: theme.colorScheme.onSurfaceVariant,
                         ),
                       ),
+                    if ((features.reviews && doctor.rating != null) ||
+                        (features.videoConsultation && doctor.offersVideo)) ...[
+                      const SizedBox(height: 6),
+                      Wrap(
+                        spacing: 8,
+                        runSpacing: 4,
+                        crossAxisAlignment: WrapCrossAlignment.center,
+                        children: [
+                          if (features.reviews && doctor.rating != null)
+                            RatingBadge(rating: doctor.rating!),
+                          if (features.videoConsultation && doctor.offersVideo)
+                            Pill(
+                              key: const Key('videoBadge'),
+                              label: l10n.videoBadge,
+                              color: theme.colorScheme.primary,
+                              icon: Icons.videocam_outlined,
+                            ),
+                        ],
+                      ),
+                    ],
                     if (doctor.clinic != null) ...[
                       const SizedBox(height: 6),
                       Row(

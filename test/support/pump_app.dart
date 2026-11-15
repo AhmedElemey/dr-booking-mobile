@@ -8,12 +8,15 @@ import 'package:moonlight/core/config/env_provider.dart';
 import 'package:moonlight/core/storage/local_settings.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
+import 'fixed_features.dart';
+
 /// Runs the whole app against the in-app mock API, on a phone-sized screen.
 /// [language] is the saved choice (null = first launch).
 Future<void> pumpMoonlight(
   WidgetTester tester, {
   String? language = 'en',
   List<Override> overrides = const [],
+  bool phase2 = false,
 }) async {
   tester.view.physicalSize = const Size(780, 1688);
   tester.view.devicePixelRatio = 2;
@@ -26,12 +29,22 @@ Future<void> pumpMoonlight(
       overrides: [
         envProvider.overrideWithValue(Env.mock),
         localSettingsProvider.overrideWithValue(LocalSettings(prefs)),
+        // The mock API serves all 13 phase 2 features on; most tests want the
+        // clinic's defaults (all off) unless they ask for [phase2].
         ...overrides,
+        if (!phase2 &&
+            !overrides.any((o) => '$o'.contains('FeaturesController')))
+          featuresOverride((f) => f),
       ],
       child: const MoonlightApp(),
     ),
   );
   await tester.pumpAndSettle();
+  if (phase2) {
+    // The switches arrive from the mock API after the first frame.
+    await tester.pump(const Duration(seconds: 2));
+    await tester.pumpAndSettle();
+  }
 }
 
 /// Advances time in small steps. `pumpAndSettle` cannot be used while the OTP

@@ -7,6 +7,7 @@ import '../../../core/l10n/generated/app_localizations.dart';
 import '../../../shared/widgets/slots_pane.dart';
 import '../../doctor/domain/doctor_slots.dart';
 import '../../doctor/presentation/doctor_providers.dart';
+import '../../waiting_list/presentation/join_waiting_list.dart';
 import '../domain/booking_draft.dart';
 import 'booking_providers.dart';
 
@@ -72,11 +73,21 @@ class _PickSlotScreenState extends ConsumerState<PickSlotScreen> {
       );
       if (!stillOpen) setState(() => _selected = null);
     });
+    final slotsNow = ref.watch(doctorSlotsProvider(widget.slug)).value;
+    final waitingList = slotsNow == null
+        ? null
+        : JoinWaitingListButton(
+            doctorId: slotsNow.doctorId,
+            slots: slotsNow,
+            loginReturnTo: '/doctors/${widget.slug}/slots',
+          );
     return Scaffold(
       appBar: AppBar(title: Text(l10n.pickSlotTitle)),
       body: SlotsPane(
         doctorKey: widget.slug,
         selected: slot,
+        emptyAction: waitingList,
+        footer: waitingList,
         onSelected: (slot, slots) => setState(() {
           _selected = slot;
           _slots = slots;

@@ -1,6 +1,7 @@
 import 'package:dio/dio.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../../core/format/clinic_time.dart';
 import '../../../core/network/dio_provider.dart';
 import '../../../core/network/failure.dart';
 import '../domain/doctor.dart';
@@ -26,15 +27,13 @@ class DoctorRepository {
         final to = from.add(const Duration(days: slotWindowDays - 1));
         final response = await _dio.get<Map<String, dynamic>>(
           '/doctors/$idOrSlug/slots',
-          queryParameters: {'from': _date(from), 'to': _date(to)},
+          queryParameters: {
+            'from': ClinicTime.apiDate(from),
+            'to': ClinicTime.apiDate(to),
+          },
         );
         return DoctorSlots.fromJson(response.data!);
       });
-
-  static String _date(DateTime d) =>
-      '${d.year.toString().padLeft(4, '0')}-'
-      '${d.month.toString().padLeft(2, '0')}-'
-      '${d.day.toString().padLeft(2, '0')}';
 }
 
 final doctorRepositoryProvider = Provider<DoctorRepository>(

@@ -16,11 +16,18 @@ import '../../features/booking/presentation/pick_slot_screen.dart';
 import '../../features/clinic_config/presentation/feature_unavailable_screen.dart';
 import '../../features/clinic_config/presentation/features_controller.dart';
 import '../../features/doctor/presentation/doctor_profile_screen.dart';
+import '../../features/family/presentation/family_screen.dart';
 import '../../features/home/presentation/home_screen.dart';
+import '../../features/payments/presentation/payment_flow.dart';
+import '../../features/payments/presentation/payment_return_screen.dart';
+import '../../features/records/presentation/records_screen.dart';
+import '../../features/reviews/presentation/doctor_reviews_screen.dart';
+import '../../features/waiting_list/presentation/waiting_list_screen.dart';
 import '../../features/profile/presentation/language_select_screen.dart';
 import '../../features/profile/presentation/settings_screen.dart';
 import '../../features/search/domain/doctor_query.dart';
 import '../../features/search/presentation/doctor_list_screen.dart';
+import '../config/clinic_features.dart';
 import '../push/push_service.dart';
 import '../storage/local_settings.dart';
 import 'app_shell.dart';
@@ -30,7 +37,29 @@ import 'app_shell.dart';
 /// When the clinic turns guest browsing off, only the login pages are open.
 bool requiresAuth(String location, {bool guestBrowsing = true}) =>
     location.startsWith('/appointments') ||
+    _patientOnly.any(location.startsWith) ||
     (!guestBrowsing && !_isLogin(location));
+
+/// Pages of the signed-in patient's own data.
+const _patientOnly = [
+  '/family',
+  '/waiting-list',
+  '/records',
+  '/payment-return',
+];
+
+/// The feature switch each phase 2 page depends on; a page whose feature is off
+/// is not reachable (not even through a deep link).
+bool _routeEnabled(String location, ClinicFeatures features) {
+  if (location.startsWith('/family')) return features.familyAccounts;
+  if (location.startsWith('/waiting-list')) return features.waitingList;
+  if (location.startsWith('/records')) return features.patientRecords;
+  if (location.startsWith('/payment-return')) return features.onlinePayments;
+  if (RegExp(r'^/doctors/[^/]+/reviews$').hasMatch(location)) {
+    return features.reviews;
+  }
+  return true;
+}
 
 bool _isLogin(String location) =>
     location == '/login' || location == '/login/otp';
@@ -58,6 +87,12 @@ final routerProvider = Provider<GoRouter>((ref) {
       return location == '/unavailable' ? null : '/unavailable';
     }
     if (location == '/unavailable') return '/';
+    // `<applicationId>://payment-return?paymentId=..&status=..` from the checkout.
+    if (state.uri.hasScheme || state.uri.host.isNotEmpty) {
+      final target = paymentReturnLocation(state.uri);
+      if (target != null) return target;
+    }
+    if (!_routeEnabled(location, features)) return '/';
     if (!features.englishLanguage && location == '/language') return '/';
     // Without English there is nothing to choose: the app is Arabic.
     if (features.englishLanguage &&
@@ -208,9 +243,32 @@ final routerProvider = Provider<GoRouter>((ref) {
                 builder: (context, state) =>
                     PickSlotScreen(slug: state.pathParameters['slug']!),
               ),
+              GoRoute(
+                path: 'reviews',
+                builder: (context, state) =>
+                    DoctorReviewsScreen(slug: state.pathParameters['slug']!),
+              ),
             ],
           ),
         ],
+      ),
+      GoRoute(
+        path: '/family',
+        builder: (context, state) => const FamilyScreen(),
+      ),
+      GoRoute(
+        path: '/waiting-list',
+        builder: (context, state) => const WaitingListScreen(),
+      ),
+      GoRoute(
+        path: '/records',
+        builder: (context, state) => const RecordsScreen(),
+      ),
+      GoRoute(
+        path: '/payment-return',
+        builder: (context, state) => PaymentReturnScreen(
+          paymentId: state.uri.queryParameters['paymentId'],
+        ),
       ),
       GoRoute(
         path: '/booking/confirm',

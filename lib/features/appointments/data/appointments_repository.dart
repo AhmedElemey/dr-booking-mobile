@@ -4,6 +4,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import '../../../core/network/dio_provider.dart';
 import '../../../core/network/failure.dart';
 import '../../../core/network/paged.dart';
+import '../../insurance/domain/insurance.dart';
 import '../domain/appointment.dart';
 
 enum AppointmentScope { upcoming, past }
@@ -20,6 +21,10 @@ class AppointmentsRepository {
     required String slotId,
     String? serviceId,
     String? note,
+    String? familyMemberId,
+    AppointmentMode? mode,
+    InsuranceChoice? insurance,
+    String? couponCode,
   }) => guardApi(() async {
     final trimmed = note?.trim();
     final response = await _dio.post<Map<String, dynamic>>(
@@ -28,6 +33,10 @@ class AppointmentsRepository {
         'slotId': slotId,
         'serviceId': ?serviceId,
         if (trimmed != null && trimmed.isNotEmpty) 'patientNote': trimmed,
+        'familyMemberId': ?familyMemberId,
+        if (mode != null && mode != AppointmentMode.inPerson) 'mode': mode.wire,
+        if (insurance != null) 'insurance': insurance.toJson(),
+        'couponCode': ?couponCode,
       },
     );
     return Appointment.fromJson(response.data!);

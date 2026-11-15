@@ -20,6 +20,16 @@ flutter build web -t lib/main_mock.dart     # then serve build/web
 
 Dev and prod are separate Android flavors, so both installs can coexist. iOS schemes for the two flavors are added with Firebase in M4.
 
+### Payment return link and the dev flavor
+
+The checkout returns to `<androidApplicationId>://payment-return` (for example `com.moonlight.app://payment-return`), and the backend only accepts a return URL built from the clinic's configured `androidApplicationId`. The application id therefore may not contain `_` (not allowed in a URI scheme; the schema, `tool/apply_brand.dart` and the console all reject it).
+
+The dev flavor installs as `com.moonlight.app.dev` but still registers the production scheme, because the backend allow-list is derived from the clinic config and would refuse `com.moonlight.app.dev://`. Consequences and how to deal with them:
+
+- With dev and prod installed side by side, Android may show a chooser when the checkout returns. Pick the build you are testing, or uninstall the other one while testing online payments.
+- To test payments end to end on the dev flavor alone, use a clinic config whose `androidApplicationId` is the dev id (`com.moonlight.app.dev`), run `dart run tool/apply_brand.dart`, and do not commit that config.
+- The in-app demo mode (`main_mock.dart`) does not open a checkout and is not affected.
+
 ## Check
 
 ```bash
@@ -61,5 +71,7 @@ Firebase projects do not exist yet, so push sits behind `PushService` (`core/pus
 1. Add `firebase_core` and `firebase_messaging`, the per-flavor `google-services.json` / `GoogleService-Info.plist`, and call `Firebase.initializeApp` in `bootstrap` (use the dev and prod projects per flavor).
 2. Implement `PushService` on `FirebaseMessaging`: `currentToken` is `getToken()`, `tokenRefreshes` is `onTokenRefresh`, `openedAppointmentIds` merges `onMessageOpenedApp` and `getInitialMessage()` and emits `message.data['appointmentId']`.
 3. Override `pushServiceProvider` with it in `main_dev.dart` / `main_prod.dart`.
+
+Push is still a stub (no FCM), so the payloads of the newer message kinds are not handled yet and nothing needs to change until FCM is wired. When it is, the backend sends, besides `{type, appointmentId}`: `waitlist.slot-opened` with `{waitingListEntryId, doctorId, date}` (open `/doctors/{doctorId}/slots`; the backend accepts the id as well as the slug), `review.prompt` with `{appointmentId}` (open `/appointments/{appointmentId}` and show the rate sheet) and `recall` with `{campaignId}` (open home).
 
 `PushRegistrar` already registers the token with `PUT /me/device-tokens` after login and on rotation, and unregisters before logout. The router already opens `/appointments/{id}` when `openedAppointmentIds` emits (guests are sent to login first), which is how a tapped notification lands on the appointment.

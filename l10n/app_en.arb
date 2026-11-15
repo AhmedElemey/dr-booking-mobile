@@ -205,5 +205,244 @@
   },
   "callToChangeAppointment": "To change or cancel this appointment, please call the clinic.",
   "errFeatureDisabled": "This isn't available right now. Please call the clinic.",
-  "errSelfServiceDisabled": "To change or cancel this appointment, please call the clinic."
+  "errSelfServiceDisabled": "To change or cancel this appointment, please call the clinic.",
+  "sectionMyHealth": "My health",
+  "familyTitle": "Family members",
+  "familyEmpty": "Add your children, spouse or parents to book visits for them.",
+  "addFamilyMember": "Add a family member",
+  "editFamilyMember": "Edit family member",
+  "removeFamilyMember": "Remove",
+  "removeFamilyConfirm": "Remove {name} from your family?",
+  "@removeFamilyConfirm": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "familyLimit": "You can add up to 10 people.",
+  "relationLabel": "Relation",
+  "relationChild": "Child",
+  "relationSpouse": "Spouse",
+  "relationParent": "Parent",
+  "relationSibling": "Sibling",
+  "relationOther": "Other",
+  "genderLabel": "Gender (optional)",
+  "genderMale": "Male",
+  "genderFemale": "Female",
+  "dateOfBirthLabel": "Date of birth (optional)",
+  "familyNameRequired": "Please enter a name.",
+  "familyRemoved": "Removed.",
+  "bookingFor": "Booking for",
+  "bookingForMe": "Me",
+  "forPerson": "For {name} ({relation})",
+  "@forPerson": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      },
+      "relation": {
+        "type": "String"
+      }
+    }
+  },
+  "joinWaitingList": "Join the waiting list",
+  "waitingListHint": "No time that suits you? We'll tell you when one opens up.",
+  "pickWaitingDate": "Pick the day you want",
+  "waitingJoined": "You're on the waiting list.",
+  "waitingListTitle": "My waiting list",
+  "waitingListEmpty": "You're not waiting for any day.",
+  "waitingStatusWaiting": "Waiting",
+  "waitingStatusNotified": "Slot opened",
+  "waitingStatusBooked": "Booked",
+  "waitingStatusCancelled": "Left",
+  "waitingStatusExpired": "Expired",
+  "leaveWaitingList": "Leave the list",
+  "waitingLeft": "You left the waiting list.",
+  "waitingNotifiedBody": "A slot has opened. Book it before someone else does.",
+  "bookNow": "Book now",
+  "payOnline": "Pay online",
+  "paymentSection": "Payment",
+  "priceLabel": "Price",
+  "discountLabel": "Discount",
+  "totalLabel": "Total",
+  "payStatusUnpaid": "Not paid",
+  "payStatusPending": "Payment pending",
+  "payStatusPaid": "Paid",
+  "payStatusRefunded": "Refunded",
+  "paymentResultTitle": "Payment",
+  "paymentResultPaid": "Payment received. Thank you!",
+  "paymentResultFailed": "The payment didn't go through. You can try again.",
+  "paymentResultPending": "We're confirming your payment...",
+  "viewAppointment": "View appointment",
+  "demoCheckoutTitle": "Demo checkout",
+  "demoCheckoutBody": "This stands in for the payment provider's page.",
+  "demoPay": "Pay {amount}",
+  "@demoPay": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "demoFail": "Simulate a failed payment",
+  "couldNotOpenLink": "Couldn't open the link.",
+  "insuranceLabel": "Insurance",
+  "useInsurance": "I have health insurance",
+  "insuranceProviderLabel": "Insurance company",
+  "insuranceMemberLabel": "Member number",
+  "insuranceRequired": "Choose the company and enter your member number.",
+  "insuranceStatusPending": "Pending review",
+  "insuranceStatusApproved": "Approved",
+  "insuranceStatusRejected": "Rejected",
+  "insuranceClinicNote": "Clinic note",
+  "allInsurers": "Any insurance",
+  "insuranceFilterTitle": "Accepts insurance",
+  "reviewsTitle": "Reviews",
+  "noReviews": "No reviews yet.",
+  "seeAllReviews": "See all reviews",
+  "rateYourVisit": "Rate your visit",
+  "ratingPrompt": "How was your visit with {doctor}?",
+  "@ratingPrompt": {
+    "placeholders": {
+      "doctor": {
+        "type": "String"
+      }
+    }
+  },
+  "reviewCommentHint": "Tell us more (optional)",
+  "submitReview": "Send review",
+  "reviewThanks": "Thanks for your feedback!",
+  "yourReview": "Your review",
+  "clinicReply": "Reply from the clinic",
+  "selectRating": "Choose a star rating.",
+  "ratingSemantics": "{rating} out of 5 stars",
+  "@ratingSemantics": {
+    "placeholders": {
+      "rating": {
+        "type": "String"
+      }
+    }
+  },
+  "ratingCount": "({count})",
+  "@ratingCount": {
+    "placeholders": {
+      "count": {
+        "type": "int"
+      }
+    }
+  },
+  "offersTitle": "Offers",
+  "offerCode": "Code {code}",
+  "@offerCode": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "offerValidUntil": "Valid until {date}",
+  "@offerValidUntil": {
+    "placeholders": {
+      "date": {
+        "type": "String"
+      }
+    }
+  },
+  "offerPercent": "{value}% off",
+  "@offerPercent": {
+    "placeholders": {
+      "value": {
+        "type": "String"
+      }
+    }
+  },
+  "offerFixed": "{amount} EGP off",
+  "@offerFixed": {
+    "placeholders": {
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "offerSaved": "Code {code} saved. We'll apply it when you book.",
+  "@offerSaved": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      }
+    }
+  },
+  "couponLabel": "Coupon code (optional)",
+  "applyCoupon": "Apply",
+  "couponApplied": "{code} applied: {amount} off",
+  "@couponApplied": {
+    "placeholders": {
+      "code": {
+        "type": "String"
+      },
+      "amount": {
+        "type": "String"
+      }
+    }
+  },
+  "couponNotFound": "We don't recognise this code.",
+  "couponExpired": "This code has expired.",
+  "couponNotStarted": "This code isn't active yet.",
+  "couponExhausted": "This code has been fully redeemed.",
+  "couponPerPatient": "You've already used this code.",
+  "couponNotApplicable": "This code doesn't apply to this visit.",
+  "couponNoPrice": "This visit has no price to discount.",
+  "couponInvalid": "This code can't be used.",
+  "visitModeLabel": "How would you like the visit?",
+  "inPerson": "In the clinic",
+  "videoVisit": "Video consultation",
+  "videoBadge": "Video",
+  "joinVideo": "Join video call",
+  "videoOpensHint": "The room opens 15 minutes before the visit.",
+  "videoOpenNow": "The room is open. Join when you are ready.",
+  "videoClosed": "The video window for this visit has closed.",
+  "videoConfirmNote": "You'll get a link to join from the appointment page.",
+  "recordsTitle": "My records",
+  "medicalInfoTitle": "Medical information",
+  "bloodTypeLabel": "Blood type",
+  "allergiesLabel": "Allergies",
+  "chronicLabel": "Chronic conditions",
+  "medicationsLabel": "Medications",
+  "recordEntriesTitle": "From your clinic",
+  "noRecords": "Nothing here yet. Your dentist can share notes, prescriptions and files with you.",
+  "noMedicalInfo": "No medical information on file.",
+  "recordKindNote": "Note",
+  "recordKindDiagnosis": "Diagnosis",
+  "recordKindPrescription": "Prescription",
+  "recordKindAttachment": "File",
+  "openAttachment": "Open file",
+  "recordsFor": "Records for",
+  "closedDay": "Closed",
+  "closedHoliday": "The clinic is closed: {name}",
+  "@closedHoliday": {
+    "placeholders": {
+      "name": {
+        "type": "String"
+      }
+    }
+  },
+  "notificationsSection": "Notifications",
+  "whatsappReminders": "WhatsApp reminders",
+  "whatsappRemindersHint": "Get your appointment reminders on WhatsApp.",
+  "marketingOptIn": "Offers and news",
+  "marketingOptInHint": "Hear about discounts and check-up reminders.",
+  "errClinicClosed": "The clinic is closed that day. Please pick another.",
+  "errAlreadyReviewed": "You've already rated this visit.",
+  "errNotReviewable": "This visit can't be rated.",
+  "errPaymentNotAllowed": "This appointment can't be paid online.",
+  "errVideoNotOpen": "The video room opens 15 minutes before the visit.",
+  "errAlreadyWaiting": "You're already on this waiting list.",
+  "errProvider": "The payment service had a problem. Please try again.",
+  "payOnlineOrClinic": "Pay at the clinic, or online right after you book.",
+  "continuePayment": "Continue payment",
+  "errBookingModeRefused": "This doctor no longer offers video visits. Your visit was switched to in person.",
+  "errBookingInsurerRefused": "This doctor does not accept that insurance provider. Choose another or book without insurance.",
+  "errBookingMemberRefused": "That family member is no longer available. Pick who the visit is for.",
+  "couldNotOpenAttachment": "Couldn't open the file. Check your connection and try again."
 }

@@ -16,11 +16,19 @@ class SlotsPane extends ConsumerWidget {
     required this.doctorKey,
     required this.selected,
     required this.onSelected,
+    this.emptyAction,
+    this.footer,
   });
 
   final String doctorKey;
   final Slot? selected;
   final void Function(Slot slot, DoctorSlots slots) onSelected;
+
+  /// Shown under the "no times" message (for example "Join the waiting list").
+  final Widget? emptyAction;
+
+  /// Shown under the slot picker.
+  final Widget? footer;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -33,10 +41,11 @@ class SlotsPane extends ConsumerWidget {
         onRetry: () => ref.invalidate(doctorSlotsProvider(doctorKey)),
       ),
       data: (slots) {
-        if (slots.isEmpty) {
+        if (slots.isEmpty && slots.closedDates.isEmpty) {
           return EmptyView(
             message: l10n.noAvailability,
             icon: Icons.event_busy_outlined,
+            action: emptyAction,
           );
         }
         return Column(
@@ -67,6 +76,7 @@ class SlotsPane extends ConsumerWidget {
                 ],
               ),
             ),
+            ?footer,
           ],
         );
       },
