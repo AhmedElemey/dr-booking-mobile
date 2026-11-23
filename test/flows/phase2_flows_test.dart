@@ -91,6 +91,28 @@ void main() {
     expect(find.text('This code has expired.'), findsOneWidget);
   });
 
+  testWidgets(
+    'confirm: family rows align and insurance clears the fixed action',
+    (tester) async {
+      await pumpMoonlight(tester, phase2: true);
+      await _signInFromAppointments(tester);
+      await _toConfirm(tester);
+      await _scrollTo(tester, const Key('for-me'));
+      final me = tester.getRect(find.byKey(const Key('for-me')));
+      final member = tester.getRect(find.byKey(const Key('for-fam-1')));
+      expect(member.left, closeTo(me.left, 0.1));
+      expect(member.width, closeTo(me.width, 0.1));
+      expect(member.top, greaterThan(me.bottom));
+      await _scrollTo(tester, const Key('useInsurance'));
+      final insurance = tester.getRect(find.byKey(const Key('useInsurance')));
+      final confirm = tester.getRect(find.byKey(const Key('confirmBooking')));
+      expect(insurance.bottom, lessThan(confirm.top));
+      await tester.tap(find.byKey(const Key('useInsurance')));
+      await tester.pumpAndSettle();
+      expect(find.byKey(const Key('insurerField')), findsOneWidget);
+    },
+  );
+
   testWidgets('family picker: book for a family member', (tester) async {
     await pumpMoonlight(tester, phase2: true);
     await _signInFromAppointments(tester);
