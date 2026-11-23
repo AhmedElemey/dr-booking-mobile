@@ -1,0 +1,18 @@
+# Connected Flutter web test
+
+This repo can produce a hosted browser build, not an App Store/Play Store release. Do not replace the connected test with main_mock.dart.
+
+Use the CI-pinned Flutter3.47.8 / Dart3.13.7 toolchain:
+
+```
+flutter pub get
+flutter analyze
+flutter test
+flutter build web --no-wasm-dry-run --optimization-level=1 -t lib/main_prod.dart --dart-define=API_BASE_URL=THE_ACTUAL_HTTPS_BACKEND_ORIGIN
+```
+
+Publish only build/web on a free static host with HTTPS and an SPA fallback to index.html. Add the exact mobile-web origin to Backend CORS. API_BASE_URL is public, never a credential. Do not ship a localhost or example URL.
+
+The lower optimization level was used for a bounded local compile check. Default optimization was interrupted by execution time limits, not established as a product failure. Local analyze is clean and147 tests pass. Production now reads API_BASE_URL and refuses missing or non-HTTPS origins at startup. Run the production-config test both without a define and with the real intended HTTPS origin before building. A compile alone does not establish connection to the backend. Browser runtime behavior for file opening, secure storage, mobile deep links and video still needs testing; native-app success cannot be inferred from a web compile.
+
+Payments, real messaging, patient records and uploads remain disabled. This file alone does not create a deployment.
