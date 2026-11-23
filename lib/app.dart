@@ -50,6 +50,37 @@ class _MoonlightAppState extends ConsumerState<MoonlightApp>
       onGenerateTitle: (context) => AppLocalizations.of(context).brandName,
       debugShowCheckedModeBanner: env.flavor == AppFlavor.dev,
       theme: buildTheme(),
+      builder: (context, child) {
+        if (!env.useMockApi || !const bool.fromEnvironment('DESIGN_PREVIEW')) {
+          return child ?? const SizedBox.shrink();
+        }
+        final scheme = Theme.of(context).colorScheme;
+        return Column(
+          children: [
+            Material(
+              color: scheme.tertiaryContainer,
+              child: SafeArea(
+                bottom: false,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 12,
+                    vertical: 8,
+                  ),
+                  child: Text(
+                    'DESIGN PREVIEW | Synthetic fixtures only | No real bookings or payments',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(
+                      fontSize: 12,
+                      color: scheme.onTertiaryContainer,
+                    ),
+                  ),
+                ),
+              ),
+            ),
+            Expanded(child: child ?? const SizedBox.shrink()),
+          ],
+        );
+      },
       locale: ref.watch(localeProvider),
       supportedLocales: AppLocalizations.supportedLocales,
       localizationsDelegates: AppLocalizations.localizationsDelegates,

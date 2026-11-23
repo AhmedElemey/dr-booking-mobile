@@ -53,6 +53,19 @@ void main() {
   String clock(String lang, int h, int m) =>
       DateFormat.jm(lang).format(DateTime(2000, 1, 1, h, m));
 
+  testWidgets('selected slot uses primary fill and contrasting text', (
+    tester,
+  ) async {
+    await pump(tester, 'ar', (_) {}, slots.days.first.slots.first);
+    await tester.pumpAndSettle();
+    final chip = tester.widget<ChoiceChip>(find.byKey(const Key('slot-a')));
+    final context = tester.element(find.byKey(const Key('slot-a')));
+    final scheme = Theme.of(context).colorScheme;
+    expect(chip.selected, isTrue);
+    expect(chip.selectedColor, scheme.primary);
+    expect(chip.labelStyle?.color, scheme.onPrimary);
+  });
+
   testWidgets('shows the API clinic-local times, whatever the device zone', (
     tester,
   ) async {

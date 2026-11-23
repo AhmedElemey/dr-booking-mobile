@@ -137,9 +137,35 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
             children: [
               Text(l10n.otpTitle, style: theme.textTheme.headlineMedium),
               const SizedBox(height: 8),
-              Text(
-                // Isolate the number so it stays left-to-right inside Arabic text.
-                l10n.otpSubtitle('\u2066${widget.phone}\u2069'),
+              Text.rich(
+                TextSpan(
+                  children: [
+                    TextSpan(
+                      text: l10n
+                          .otpSubtitle('__PHONE__')
+                          .split('__PHONE__')
+                          .first,
+                    ),
+                    WidgetSpan(
+                      alignment: PlaceholderAlignment.baseline,
+                      baseline: TextBaseline.alphabetic,
+                      child: Directionality(
+                        textDirection: TextDirection.ltr,
+                        child: Text(
+                          widget.phone,
+                          key: const Key('otpPhone'),
+                          style: theme.textTheme.bodyLarge,
+                        ),
+                      ),
+                    ),
+                    TextSpan(
+                      text: l10n
+                          .otpSubtitle('__PHONE__')
+                          .split('__PHONE__')
+                          .last,
+                    ),
+                  ],
+                ),
                 style: theme.textTheme.bodyLarge,
               ),
               const SizedBox(height: 28),

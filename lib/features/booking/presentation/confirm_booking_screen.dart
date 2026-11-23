@@ -193,9 +193,23 @@ class _ConfirmBookingScreenState extends ConsumerState<ConfirmBookingScreen> {
     ];
 
     return Scaffold(
-      appBar: AppBar(title: Text(l10n.confirmTitle)),
+      appBar: AppBar(
+        title: Text(l10n.confirmTitle),
+        leading: BackButton(
+          key: const Key('confirmBack'),
+          onPressed: () {
+            if (context.canPop()) {
+              context.pop();
+            } else {
+              context.go('/doctors/${draft.doctor.slug}/slots');
+            }
+          },
+        ),
+      ),
       body: ListView(
-        padding: const EdgeInsetsDirectional.fromSTEB(16, 8, 16, 16),
+        // Leave breathing room above the fixed confirm action so the final
+        // controls can always scroll fully into view on short screens.
+        padding: const EdgeInsetsDirectional.fromSTEB(16, 8, 16, 96),
         children: [
           Card(
             child: Padding(

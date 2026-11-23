@@ -57,11 +57,10 @@ class OfferCard extends ConsumerWidget {
     final value = offer.discountType == DiscountType.percent
         ? l10n.offerPercent(number.format(offer.value))
         : l10n.offerFixed(number.format(offer.value));
-    final scheme = theme.colorScheme;
     return SizedBox(
       width: 264,
       child: Material(
-        color: scheme.primary,
+        color: theme.colorScheme.secondaryContainer,
         borderRadius: BorderRadius.circular(18),
         clipBehavior: Clip.antiAlias,
         child: InkWell(
@@ -80,7 +79,7 @@ class OfferCard extends ConsumerWidget {
                 Text(
                   value,
                   style: theme.textTheme.headlineSmall?.copyWith(
-                    color: scheme.onPrimary,
+                    color: theme.colorScheme.onSecondaryContainer,
                     fontWeight: FontWeight.w800,
                   ),
                 ),
@@ -90,7 +89,7 @@ class OfferCard extends ConsumerWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: theme.textTheme.titleSmall?.copyWith(
-                    color: scheme.onPrimary,
+                    color: theme.colorScheme.onSecondaryContainer,
                   ),
                 ),
                 if ((offer.description ?? '').isNotEmpty)
@@ -99,7 +98,7 @@ class OfferCard extends ConsumerWidget {
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                     style: theme.textTheme.bodySmall?.copyWith(
-                      color: scheme.onPrimary.withValues(alpha: 0.85),
+                      color: theme.colorScheme.onSecondaryContainer,
                     ),
                   ),
                 const Spacer(),
@@ -107,7 +106,7 @@ class OfferCard extends ConsumerWidget {
                   children: [
                     DecoratedBox(
                       decoration: BoxDecoration(
-                        color: scheme.onPrimary.withValues(alpha: 0.18),
+                        color: theme.colorScheme.surfaceContainerLowest,
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Padding(
@@ -119,7 +118,7 @@ class OfferCard extends ConsumerWidget {
                           offer.code,
                           textDirection: TextDirection.ltr,
                           style: theme.textTheme.labelLarge?.copyWith(
-                            color: scheme.onPrimary,
+                            color: theme.colorScheme.onSecondaryContainer,
                             letterSpacing: 1,
                           ),
                         ),
@@ -136,7 +135,7 @@ class OfferCard extends ConsumerWidget {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: theme.textTheme.labelSmall?.copyWith(
-                            color: scheme.onPrimary.withValues(alpha: 0.85),
+                            color: theme.colorScheme.onSecondaryContainer,
                           ),
                         ),
                       ),
