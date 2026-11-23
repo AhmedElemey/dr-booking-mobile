@@ -9,7 +9,8 @@
   "@minutesShort": {
     "placeholders": {
       "count": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -57,7 +58,8 @@
   "@resendIn": {
     "placeholders": {
       "seconds": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -72,6 +74,8 @@
   "searchHint": "Search by doctor name",
   "cityLabel": "City",
   "allCities": "All cities",
+  "cityCairo": "Cairo",
+  "timezoneCairo": "Cairo",
   "specialtiesTitle": "Specialties",
   "allDoctors": "All dentists",
   "doctorsTitle": "Dentists",
@@ -81,7 +85,8 @@
   "@yearsExperience": {
     "placeholders": {
       "count": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
@@ -99,7 +104,7 @@
   "bookAppointment": "Book an appointment",
   "pickSlotTitle": "Pick a time",
   "noAvailability": "No available times right now. Please check again later.",
-  "clinicTimeNote": "Times are shown in clinic time ({timezone}).",
+  "clinicTimeNote": "Times are shown in {timezone} time.",
   "@clinicTimeNote": {
     "placeholders": {
       "timezone": {
@@ -328,7 +333,8 @@
   "@ratingCount": {
     "placeholders": {
       "count": {
-        "type": "int"
+        "type": "int",
+        "format": "decimalPattern"
       }
     }
   },
