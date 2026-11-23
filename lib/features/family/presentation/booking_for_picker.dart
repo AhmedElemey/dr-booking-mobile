@@ -29,36 +29,12 @@ class BookingForPicker extends ConsumerWidget {
       children: [
         Text(l10n.bookingFor, style: theme.textTheme.titleSmall),
         const SizedBox(height: 8),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
-            ChoiceChip(
-              labelPadding: const EdgeInsetsDirectional.symmetric(
-                horizontal: 12,
-                vertical: 8,
-              ),
-              selectedColor: theme.colorScheme.primary,
-              checkmarkColor: theme.colorScheme.onPrimary,
-              labelStyle: TextStyle(
-                color: selected == null
-                    ? theme.colorScheme.onPrimary
-                    : theme.colorScheme.onSurface,
-              ),
-              key: const Key('for-me'),
-              avatar: Icon(
-                Icons.person_outline,
-                size: 18,
-                color: selected == null
-                    ? theme.colorScheme.onPrimary
-                    : theme.colorScheme.onSurface,
-              ),
-              label: Text(l10n.bookingForMe),
-              selected: selected == null,
-              onSelected: (_) => onSelected(null),
-            ),
-            const SizedBox(height: 8),
-            for (final member in members) ...[
+        Builder(
+          builder: (context) => Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
               ChoiceChip(
+                showCheckmark: false,
                 labelPadding: const EdgeInsetsDirectional.symmetric(
                   horizontal: 12,
                   vertical: 8,
@@ -66,38 +42,75 @@ class BookingForPicker extends ConsumerWidget {
                 selectedColor: theme.colorScheme.primary,
                 checkmarkColor: theme.colorScheme.onPrimary,
                 labelStyle: TextStyle(
-                  color: selected?.id == member.id
+                  color: selected == null
                       ? theme.colorScheme.onPrimary
                       : theme.colorScheme.onSurface,
                 ),
-                key: Key('for-${member.id}'),
+                key: const Key('for-me'),
                 avatar: Icon(
-                  member.relation == FamilyRelation.child
-                      ? Icons.child_care
-                      : Icons.person_outline,
+                  Icons.person_outline,
                   size: 18,
-                  color: selected?.id == member.id
+                  color: selected == null
                       ? theme.colorScheme.onPrimary
                       : theme.colorScheme.onSurface,
                 ),
-                label: Text(
-                  '${member.fullName} (${l10n.relationName(member.relation)})',
+                label: SizedBox(
+                  width: MediaQuery.sizeOf(context).width * 0.55,
+                  child: Text(l10n.bookingForMe),
                 ),
-                selected: selected?.id == member.id,
-                onSelected: (_) => onSelected(member),
+                selected: selected == null,
+                onSelected: (_) => onSelected(null),
               ),
               const SizedBox(height: 8),
+              for (final member in members) ...[
+                ChoiceChip(
+                  showCheckmark: false,
+                  labelPadding: const EdgeInsetsDirectional.symmetric(
+                    horizontal: 12,
+                    vertical: 8,
+                  ),
+                  selectedColor: theme.colorScheme.primary,
+                  checkmarkColor: theme.colorScheme.onPrimary,
+                  labelStyle: TextStyle(
+                    color: selected?.id == member.id
+                        ? theme.colorScheme.onPrimary
+                        : theme.colorScheme.onSurface,
+                  ),
+                  key: Key('for-${member.id}'),
+                  avatar: Icon(
+                    member.relation == FamilyRelation.child
+                        ? Icons.child_care
+                        : Icons.person_outline,
+                    size: 18,
+                    color: selected?.id == member.id
+                        ? theme.colorScheme.onPrimary
+                        : theme.colorScheme.onSurface,
+                  ),
+                  label: SizedBox(
+                    width: MediaQuery.sizeOf(context).width * 0.55,
+                    child: Text(
+                      '${member.fullName} (${l10n.relationName(member.relation)})',
+                    ),
+                  ),
+                  selected: selected?.id == member.id,
+                  onSelected: (_) => onSelected(member),
+                ),
+                const SizedBox(height: 8),
+              ],
+              ActionChip(
+                key: const Key('addMemberChip'),
+                avatar: const Icon(Icons.add, size: 18),
+                label: SizedBox(
+                  width: MediaQuery.sizeOf(context).width * 0.55,
+                  child: Text(l10n.addFamilyMember),
+                ),
+                onPressed: () async {
+                  final saved = await showFamilyMemberSheet(context, ref);
+                  if (saved == true) ref.invalidate(familyMembersProvider);
+                },
+              ),
             ],
-            ActionChip(
-              key: const Key('addMemberChip'),
-              avatar: const Icon(Icons.add, size: 18),
-              label: Text(l10n.addFamilyMember),
-              onPressed: () async {
-                final saved = await showFamilyMemberSheet(context, ref);
-                if (saved == true) ref.invalidate(familyMembersProvider);
-              },
-            ),
-          ],
+          ),
         ),
       ],
     );
