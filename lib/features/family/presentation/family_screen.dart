@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../core/format/arabic_digits.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/format/clinic_time.dart';
@@ -289,6 +290,7 @@ class _MemberFormState extends ConsumerState<_MemberForm> {
               key: const Key('familyNameField'),
               controller: _name,
               maxLength: 200,
+            buildCounter: localizedFieldCounter,
               inputFormatters: [noLeadingSpace],
               textCapitalization: TextCapitalization.words,
               decoration: InputDecoration(labelText: l10n.fullNameLabel),
