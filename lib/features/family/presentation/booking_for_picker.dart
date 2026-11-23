@@ -29,19 +29,27 @@ class BookingForPicker extends ConsumerWidget {
       children: [
         Text(l10n.bookingFor, style: theme.textTheme.titleSmall),
         const SizedBox(height: 8),
-        Wrap(
-          spacing: 8,
-          runSpacing: 8,
+        Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             ChoiceChip(
+              labelPadding: const EdgeInsetsDirectional.symmetric(
+                horizontal: 12,
+                vertical: 8,
+              ),
               key: const Key('for-me'),
               avatar: const Icon(Icons.person_outline, size: 18),
               label: Text(l10n.bookingForMe),
               selected: selected == null,
               onSelected: (_) => onSelected(null),
             ),
-            for (final member in members)
+            const SizedBox(height: 8),
+            for (final member in members) ...[
               ChoiceChip(
+                labelPadding: const EdgeInsetsDirectional.symmetric(
+                  horizontal: 12,
+                  vertical: 8,
+                ),
                 key: Key('for-${member.id}'),
                 avatar: Icon(
                   member.relation == FamilyRelation.child
@@ -55,6 +63,8 @@ class BookingForPicker extends ConsumerWidget {
                 selected: selected?.id == member.id,
                 onSelected: (_) => onSelected(member),
               ),
+              const SizedBox(height: 8),
+            ],
             ActionChip(
               key: const Key('addMemberChip'),
               avatar: const Icon(Icons.add, size: 18),
