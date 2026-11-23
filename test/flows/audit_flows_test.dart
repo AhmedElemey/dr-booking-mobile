@@ -80,13 +80,21 @@ Future<void> _scrollTo(WidgetTester tester, Key key) async {
 }
 
 /// Writing the downloaded file is real I/O, which only completes outside the
-/// fake-async clock: alternate between advancing it and yielding to the loop.
+/// fake-async clock: alternate between advancing it and yielding to the loop
+/// until the download spinner clears. A hard cap keeps a broken download from
+/// hanging pumpAndSettle on the spinner; it fails clearly instead.
 Future<void> _settleWithIo(WidgetTester tester) async {
-  for (var i = 0; i < 30; i++) {
+  await tester.pump(); // Let the tap's setState build the busy spinner.
+  final sw = Stopwatch()..start();
+  while (find.byType(CircularProgressIndicator).evaluate().isNotEmpty &&
+      sw.elapsed < const Duration(seconds: 10)) {
     await tester.pump(const Duration(milliseconds: 100));
     await tester.runAsync(
-      () => Future<void>.delayed(const Duration(milliseconds: 20)),
+      () => Future<void>.delayed(const Duration(milliseconds: 50)),
     );
+  }
+  if (find.byType(CircularProgressIndicator).evaluate().isNotEmpty) {
+    fail('Attachment download did not finish within 10 seconds.');
   }
   await tester.pumpAndSettle();
 }
