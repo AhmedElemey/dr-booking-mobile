@@ -128,7 +128,12 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(
+        // Deep-linked guests have no back stack; never trap them here.
+        leading: context.canPop()
+            ? null
+            : BackButton(onPressed: () => context.go('/')),
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsetsDirectional.all(24),
@@ -219,7 +224,8 @@ class _OtpScreenState extends ConsumerState<OtpScreen> {
               ),
               Center(
                 child: TextButton(
-                  onPressed: () => context.pop(),
+                  onPressed: () =>
+                      context.canPop() ? context.pop() : context.go('/login'),
                   child: Text(l10n.changeNumber),
                 ),
               ),
