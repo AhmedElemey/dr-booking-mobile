@@ -29,7 +29,7 @@ class DoctorCard extends ConsumerWidget {
       child: InkWell(
         onTap: onTap,
         child: Padding(
-          padding: const EdgeInsetsDirectional.all(14),
+          padding: const EdgeInsetsDirectional.all(18),
           child: Row(
             children: [
               DoctorAvatar(name: doctor.name, photoUrl: doctor.photoUrl),
@@ -38,10 +38,15 @@ class DoctorCard extends ConsumerWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text(doctor.name, style: theme.textTheme.titleMedium),
+                    Text(
+                      doctor.name,
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w800,
+                      ),
+                    ),
                     if (details.isNotEmpty)
                       Text(
-                        details.join(' — '),
+                        details.join(' · '),
                         style: theme.textTheme.bodyMedium?.copyWith(
                           color: theme.colorScheme.onSurfaceVariant,
                         ),
@@ -88,7 +93,7 @@ class DoctorCard extends ConsumerWidget {
                       ),
                     ],
                     if (doctor.consultationFeeEgp != null) ...[
-                      const SizedBox(height: 4),
+                      const SizedBox(height: 10),
                       Text(
                         l10n.consultationFee(
                           l10n.priceEgp(doctor.consultationFeeEgp!),
