@@ -44,6 +44,7 @@ void main() {
     // Back on the same confirm screen, now able to book.
     expect(find.byKey(const Key('confirmBooking')), findsOneWidget);
     expect(find.text('Sign in to confirm'), findsNothing);
+    expect(find.byKey(const Key('confirmBack')), findsOneWidget);
     await tester.tap(find.byKey(const Key('service-svc-cleaning')));
     await tester.enterText(
       find.byKey(const Key('noteField')),
