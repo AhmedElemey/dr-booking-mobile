@@ -37,8 +37,21 @@ class BookingForPicker extends ConsumerWidget {
                 horizontal: 12,
                 vertical: 8,
               ),
+              selectedColor: theme.colorScheme.primary,
+              checkmarkColor: theme.colorScheme.onPrimary,
+              labelStyle: TextStyle(
+                color: selected == null
+                    ? theme.colorScheme.onPrimary
+                    : theme.colorScheme.onSurface,
+              ),
               key: const Key('for-me'),
-              avatar: const Icon(Icons.person_outline, size: 18),
+              avatar: Icon(
+                Icons.person_outline,
+                size: 18,
+                color: selected == null
+                    ? theme.colorScheme.onPrimary
+                    : theme.colorScheme.onSurface,
+              ),
               label: Text(l10n.bookingForMe),
               selected: selected == null,
               onSelected: (_) => onSelected(null),
@@ -50,12 +63,22 @@ class BookingForPicker extends ConsumerWidget {
                   horizontal: 12,
                   vertical: 8,
                 ),
+                selectedColor: theme.colorScheme.primary,
+                checkmarkColor: theme.colorScheme.onPrimary,
+                labelStyle: TextStyle(
+                  color: selected?.id == member.id
+                      ? theme.colorScheme.onPrimary
+                      : theme.colorScheme.onSurface,
+                ),
                 key: Key('for-${member.id}'),
                 avatar: Icon(
                   member.relation == FamilyRelation.child
                       ? Icons.child_care
                       : Icons.person_outline,
                   size: 18,
+                  color: selected?.id == member.id
+                      ? theme.colorScheme.onPrimary
+                      : theme.colorScheme.onSurface,
                 ),
                 label: Text(
                   '${member.fullName} (${l10n.relationName(member.relation)})',
