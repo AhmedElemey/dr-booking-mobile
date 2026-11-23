@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
+import '../../core/format/display_labels.dart';
 import '../../core/l10n/generated/app_localizations.dart';
 import '../../features/doctor/domain/doctor_slots.dart';
 import '../../features/doctor/presentation/doctor_providers.dart';
@@ -69,7 +70,7 @@ class SlotsPane extends ConsumerWidget {
                   const SizedBox(width: 6),
                   Expanded(
                     child: Text(
-                      l10n.clinicTimeNote(slots.timezone),
+                      l10n.clinicTimeNote(timezoneLabel(slots.timezone, l10n)),
                       style: Theme.of(context).textTheme.bodySmall,
                     ),
                   ),

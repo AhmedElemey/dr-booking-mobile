@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+
+import '../../../core/format/arabic_digits.dart';
+
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -373,6 +376,7 @@ class _ConfirmBookingScreenState extends ConsumerState<ConfirmBookingScreen> {
             controller: _note,
             maxLines: 3,
             maxLength: 500,
+            buildCounter: localizedFieldCounter,
             decoration: InputDecoration(labelText: l10n.noteLabel),
           ),
           const SizedBox(height: 8),

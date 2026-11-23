@@ -26,6 +26,23 @@ void main() {
     },
   );
 
+  testWidgets('a guest redirected to login can leave it without signing in', (
+    tester,
+  ) async {
+    await pumpMoonlight(tester);
+    await _goToLogin(tester);
+
+    expect(find.byKey(const Key('phoneField')), findsOneWidget);
+    // The redirect left no back stack, so the screen offers its own way out.
+    expect(find.byType(BackButton), findsOneWidget);
+
+    await tester.tap(find.byType(BackButton));
+    await tester.pumpAndSettle();
+
+    expect(find.byKey(const Key('phoneField')), findsNothing);
+    expect(find.byKey(const Key('searchField')), findsOneWidget);
+  });
+
   testWidgets('login returns to the page the guest wanted', (tester) async {
     await pumpMoonlight(tester);
     await _goToLogin(tester);

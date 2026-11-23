@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../../core/config/brand_l10n.dart';
+import '../../../core/format/display_labels.dart';
 import '../../../core/l10n/generated/app_localizations.dart';
 import '../../../core/l10n/locale_controller.dart';
 import '../../../shared/widgets/error_view.dart';
@@ -145,7 +146,25 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               ),
               if (cities != null) ...[
                 const SizedBox(height: 10),
-                cities.maybeWhen(
+                cities.when(
+                  // Keep the field's space while cities load so the list does
+                  // not shove the button under it down when they arrive.
+                  loading: () => InputDecorator(
+                    decoration: InputDecoration(
+                      labelText: l10n.cityLabel,
+                      prefixIcon: const Icon(Icons.place_outlined),
+                    ),
+                    child: const SizedBox(
+                      height: 24,
+                      child: Center(
+                        child: SizedBox.square(
+                          dimension: 18,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        ),
+                      ),
+                    ),
+                  ),
+                  error: (_, _) => const SizedBox.shrink(),
                   data: (items) => items.isEmpty
                       ? const SizedBox.shrink()
                       : DropdownButtonFormField<String?>(
@@ -162,11 +181,13 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                               child: Text(l10n.allCities),
                             ),
                             for (final city in items)
-                              DropdownMenuItem(value: city, child: Text(city)),
+                              DropdownMenuItem(
+                                value: city,
+                                child: Text(cityLabel(city, l10n)),
+                              ),
                           ],
                           onChanged: (value) => setState(() => _city = value),
                         ),
-                  orElse: () => const SizedBox.shrink(),
                 ),
               ],
               const SizedBox(height: 14),

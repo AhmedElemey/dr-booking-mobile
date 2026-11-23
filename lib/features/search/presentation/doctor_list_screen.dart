@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
+import '../../../core/format/display_labels.dart';
 import '../../../core/l10n/generated/app_localizations.dart';
 import '../../clinic_config/presentation/features_controller.dart';
 import '../../insurance/domain/insurance.dart';
@@ -154,7 +155,7 @@ class _DoctorListScreenState extends ConsumerState<DoctorListScreen> {
                       ),
                     if (_query.city != null)
                       InputChip(
-                        label: Text(_query.city!),
+                        label: Text(cityLabel(_query.city!, l10n)),
                         onDeleted: () => setState(
                           () => _query = _query.copyWith(city: () => null),
                         ),
