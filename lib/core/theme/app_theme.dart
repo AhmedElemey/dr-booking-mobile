@@ -7,7 +7,6 @@ ThemeData buildTheme() {
   final scheme = ColorScheme.fromSeed(
     seedColor: Brand.primary,
     secondary: Brand.accent,
-    surface: const Color(0xFFF6F8FC),
   ).copyWith(primary: Brand.primary, secondary: Brand.accent);
   return ThemeData(
     colorScheme: scheme,
@@ -19,32 +18,32 @@ ThemeData buildTheme() {
       centerTitle: false,
     ),
     navigationBarTheme: NavigationBarThemeData(
-      backgroundColor: Colors.white,
+      backgroundColor: scheme.surfaceContainerLowest,
       indicatorColor: Brand.primary.withValues(alpha: 0.10),
       height: 76,
       elevation: 0,
       labelBehavior: NavigationDestinationLabelBehavior.alwaysShow,
     ),
-    dividerTheme: const DividerThemeData(color: Color(0xFFE8EBF3)),
+    dividerTheme: DividerThemeData(color: scheme.outlineVariant),
     cardTheme: CardThemeData(
       elevation: 0,
-      color: Colors.white,
+      color: scheme.surfaceContainerLowest,
       margin: EdgeInsets.zero,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(22),
-        side: const BorderSide(color: Color(0xFFE8EBF3)),
+        side: BorderSide(color: scheme.outlineVariant),
       ),
     ),
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
-      fillColor: Colors.white,
+      fillColor: scheme.surfaceContainerLowest,
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(18),
-        borderSide: const BorderSide(color: Color(0xFFE8EBF3)),
+        borderSide: BorderSide(color: scheme.outlineVariant),
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(18),
-        borderSide: const BorderSide(color: Color(0xFFE8EBF3)),
+        borderSide: BorderSide(color: scheme.outlineVariant),
       ),
     ),
     filledButtonTheme: FilledButtonThemeData(
