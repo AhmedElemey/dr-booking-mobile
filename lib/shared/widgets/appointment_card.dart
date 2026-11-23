@@ -32,13 +32,13 @@ class AppointmentCard extends ConsumerWidget {
       child: InkWell(
         onTap: onTap,
         child: Padding(
-          padding: const EdgeInsetsDirectional.all(14),
+          padding: const EdgeInsetsDirectional.all(18),
           child: Row(
             children: [
               DoctorAvatar(
                 name: appointment.doctor.name,
                 photoUrl: appointment.doctor.photoUrl,
-                radius: 24,
+                radius: 26,
               ),
               const SizedBox(width: 14),
               Expanded(
@@ -47,9 +47,11 @@ class AppointmentCard extends ConsumerWidget {
                   children: [
                     Text(
                       appointment.doctor.name,
-                      style: theme.textTheme.titleMedium,
+                      style: theme.textTheme.titleMedium?.copyWith(
+                        fontWeight: FontWeight.w700,
+                      ),
                     ),
-                    const SizedBox(height: 2),
+                    const SizedBox(height: 6),
                     Text(
                       ClinicTime.date(appointment.startsAtLocal, locale),
                       style: theme.textTheme.bodyMedium,
@@ -61,7 +63,7 @@ class AppointmentCard extends ConsumerWidget {
                         fontWeight: FontWeight.w600,
                       ),
                     ),
-                    const SizedBox(height: 2),
+                    const SizedBox(height: 6),
                     Text(
                       appointment.clinic.name,
                       maxLines: 1,
