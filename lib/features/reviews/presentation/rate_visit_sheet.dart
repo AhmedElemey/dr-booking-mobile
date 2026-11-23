@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../core/format/arabic_digits.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/l10n/failure_messages.dart';
@@ -114,6 +115,7 @@ class _RateVisitSheetState extends ConsumerState<RateVisitSheet> {
               controller: _comment,
               maxLines: 3,
               maxLength: 1000,
+            buildCounter: localizedFieldCounter,
               decoration: InputDecoration(hintText: l10n.reviewCommentHint),
             ),
             if (_error != null) ...[
