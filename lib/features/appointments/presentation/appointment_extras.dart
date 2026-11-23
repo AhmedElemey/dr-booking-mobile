@@ -162,8 +162,7 @@ class InsuranceCard extends StatelessWidget {
             ),
             const SizedBox(height: 8),
             Text(
-              '${l10n.insuranceMemberLabel}: ${insurance.memberNumber}',
-              textDirection: TextDirection.ltr,
+              '${l10n.insuranceMemberLabel}: \u2066${insurance.memberNumber}\u2069',
               style: theme.textTheme.bodyMedium,
             ),
             if ((insurance.note ?? '').isNotEmpty) ...[
