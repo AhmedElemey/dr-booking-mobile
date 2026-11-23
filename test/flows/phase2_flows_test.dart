@@ -98,6 +98,11 @@ void main() {
       await _signInFromAppointments(tester);
       await _toConfirm(tester);
       await _scrollTo(tester, const Key('for-me'));
+      final meChip = tester.widget<ChoiceChip>(find.byKey(const Key('for-me')));
+      final scheme = Theme.of(tester.element(find.byKey(const Key('for-me'))))
+          .colorScheme;
+      expect(meChip.selectedColor, scheme.primary);
+      expect(meChip.labelStyle?.color, scheme.onPrimary);
       final me = tester.getRect(find.byKey(const Key('for-me')));
       final member = tester.getRect(find.byKey(const Key('for-fam-1')));
       expect(member.left, closeTo(me.left, 0.1));
