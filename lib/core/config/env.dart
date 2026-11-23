@@ -29,8 +29,25 @@ class Env {
     ),
   );
 
-  // Set to the production API origin before the first prod release (M6).
-  static const prod = Env(flavor: AppFlavor.prod, apiBaseUrl: '');
+  /// A production build must point at the real HTTPS backend, never fixtures.
+  static Env get prod =>
+      production(const String.fromEnvironment('API_BASE_URL'));
+
+  static Env production(String apiOrigin) {
+    final uri = Uri.tryParse(apiOrigin);
+    if (uri == null ||
+        uri.scheme != 'https' ||
+        uri.host.isEmpty ||
+        uri.userInfo.isNotEmpty ||
+        uri.hasQuery ||
+        uri.hasFragment ||
+        (uri.path.isNotEmpty && uri.path != '/')) {
+      throw ArgumentError(
+        'API_BASE_URL must be an HTTPS origin without credentials, path or query.',
+      );
+    }
+    return Env(flavor: AppFlavor.prod, apiBaseUrl: uri.origin);
+  }
 
   /// Demo mode: fixtures only, no backend needed (lib/main_mock.dart).
   static const mock = Env(
