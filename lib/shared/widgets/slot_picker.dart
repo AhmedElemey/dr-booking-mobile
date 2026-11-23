@@ -194,6 +194,7 @@ class _SlotPickerState extends State<SlotPicker> {
               itemCount: day.slots.length,
               itemBuilder: (context, index) {
                 final slot = day.slots[index];
+                final scheme = Theme.of(context).colorScheme;
                 final label = ClinicTime.time(
                   ClinicTime.parseTime(slot.local),
                   locale,
@@ -205,6 +206,12 @@ class _SlotPickerState extends State<SlotPicker> {
                     child: Text(label, textAlign: TextAlign.center),
                   ),
                   selected: widget.selected?.id == slot.id,
+                  selectedColor: scheme.primary,
+                  labelStyle: TextStyle(
+                    color: widget.selected?.id == slot.id
+                        ? scheme.onPrimary
+                        : scheme.onSurface,
+                  ),
                   showCheckmark: false,
                   onSelected: (_) => widget.onSelected(slot),
                 );
