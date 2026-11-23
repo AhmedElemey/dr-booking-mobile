@@ -61,9 +61,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                 color: theme.colorScheme.primary,
                 borderRadius: BorderRadius.circular(14),
               ),
-              child: const Icon(
+              child: Icon(
                 Icons.nightlight_round,
-                color: Colors.white,
+                color: theme.colorScheme.onPrimary,
                 size: 21,
               ),
             ),
@@ -91,9 +91,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
               Container(
                 padding: const EdgeInsets.all(22),
                 decoration: BoxDecoration(
-                  color: const Color(0xFFEEEDFF),
+                  color: theme.colorScheme.primaryContainer,
                   borderRadius: BorderRadius.circular(28),
-                  border: Border.all(color: const Color(0xFFE2E0FC)),
+                  border: Border.all(color: theme.colorScheme.outlineVariant),
                 ),
                 child: Row(
                   children: [
@@ -101,7 +101,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       child: Text(
                         l10n.homeHeadline,
                         style: theme.textTheme.headlineSmall?.copyWith(
-                          color: const Color(0xFF242056),
+                          color: theme.colorScheme.onPrimaryContainer,
                           fontWeight: FontWeight.w800,
                           height: 1.45,
                         ),
@@ -112,7 +112,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                       width: 58,
                       height: 70,
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: theme.colorScheme.surfaceContainerLowest,
                         borderRadius: BorderRadius.circular(22),
                       ),
                       child: Icon(
@@ -208,7 +208,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                           SizedBox(
                             width: width,
                             child: Material(
-                              color: Colors.white,
+                              color: theme.colorScheme.surfaceContainerLowest,
                               borderRadius: BorderRadius.circular(20),
                               child: InkWell(
                                 key: Key('specialty-${items[i].id}'),
@@ -222,7 +222,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                                   padding: const EdgeInsets.all(14),
                                   decoration: BoxDecoration(
                                     border: Border.all(
-                                      color: const Color(0xFFE8EBF3),
+                                      color: theme.colorScheme.outlineVariant,
                                     ),
                                     borderRadius: BorderRadius.circular(20),
                                   ),
