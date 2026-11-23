@@ -66,7 +66,13 @@ class _PhoneScreenState extends ConsumerState<PhoneScreen> {
     final l10n = AppLocalizations.of(context);
     final theme = Theme.of(context);
     return Scaffold(
-      appBar: AppBar(),
+      appBar: AppBar(
+        // Guests redirected here (e.g. from the appointments tab) have no back
+        // stack, so give them a way back home instead of trapping them.
+        leading: context.canPop()
+            ? null
+            : BackButton(onPressed: () => context.go('/')),
+      ),
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsetsDirectional.all(24),
