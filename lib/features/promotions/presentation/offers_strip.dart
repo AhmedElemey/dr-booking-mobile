@@ -60,7 +60,7 @@ class OfferCard extends ConsumerWidget {
     return SizedBox(
       width: 264,
       child: Material(
-        color: const Color(0xFFE5F5F1),
+        color: theme.colorScheme.secondaryContainer,
         borderRadius: BorderRadius.circular(18),
         clipBehavior: Clip.antiAlias,
         child: InkWell(
@@ -79,7 +79,7 @@ class OfferCard extends ConsumerWidget {
                 Text(
                   value,
                   style: theme.textTheme.headlineSmall?.copyWith(
-                    color: const Color(0xFF14594F),
+                    color: theme.colorScheme.onSecondaryContainer,
                     fontWeight: FontWeight.w800,
                   ),
                 ),
@@ -89,7 +89,7 @@ class OfferCard extends ConsumerWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: theme.textTheme.titleSmall?.copyWith(
-                    color: const Color(0xFF14594F),
+                    color: theme.colorScheme.onSecondaryContainer,
                   ),
                 ),
                 if ((offer.description ?? '').isNotEmpty)
@@ -98,7 +98,7 @@ class OfferCard extends ConsumerWidget {
                     maxLines: 2,
                     overflow: TextOverflow.ellipsis,
                     style: theme.textTheme.bodySmall?.copyWith(
-                      color: const Color(0xFF35675D),
+                      color: theme.colorScheme.onSecondaryContainer,
                     ),
                   ),
                 const Spacer(),
@@ -106,7 +106,7 @@ class OfferCard extends ConsumerWidget {
                   children: [
                     DecoratedBox(
                       decoration: BoxDecoration(
-                        color: Colors.white,
+                        color: theme.colorScheme.surfaceContainerLowest,
                         borderRadius: BorderRadius.circular(8),
                       ),
                       child: Padding(
@@ -118,7 +118,7 @@ class OfferCard extends ConsumerWidget {
                           offer.code,
                           textDirection: TextDirection.ltr,
                           style: theme.textTheme.labelLarge?.copyWith(
-                            color: const Color(0xFF14594F),
+                            color: theme.colorScheme.onSecondaryContainer,
                             letterSpacing: 1,
                           ),
                         ),
@@ -135,7 +135,7 @@ class OfferCard extends ConsumerWidget {
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: theme.textTheme.labelSmall?.copyWith(
-                            color: const Color(0xFF35675D),
+                            color: theme.colorScheme.onSecondaryContainer,
                           ),
                         ),
                       ),
