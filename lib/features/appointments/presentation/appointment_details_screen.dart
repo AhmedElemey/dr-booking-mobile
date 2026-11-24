@@ -260,7 +260,7 @@ class _Body extends StatelessWidget {
             ),
           ),
         ),
-        if (appointment.canChange && !selfService) ...[
+        if (appointment.canCancel && !selfService) ...[
           const SizedBox(height: 20),
           CallToChangeNotice(
             phone: (clinic.phone ?? '').isNotEmpty
@@ -268,14 +268,16 @@ class _Body extends StatelessWidget {
                 : Brand.supportPhone,
           ),
         ],
-        if (appointment.canChange && selfService) ...[
+        if (appointment.canCancel && selfService) ...[
           const SizedBox(height: 20),
-          FilledButton(
-            key: const Key('reschedule'),
-            onPressed: cancelling ? null : onReschedule,
-            child: Text(l10n.rescheduleAppointment),
-          ),
-          const SizedBox(height: 8),
+          if (appointment.canReschedule) ...[
+            FilledButton(
+              key: const Key('reschedule'),
+              onPressed: cancelling ? null : onReschedule,
+              child: Text(l10n.rescheduleAppointment),
+            ),
+            const SizedBox(height: 8),
+          ],
           TextButton(
             key: const Key('cancelAppointment'),
             onPressed: cancelling ? null : onCancel,

@@ -12,7 +12,10 @@ class StatusChip extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final (label, color) = switch (status) {
+      AppointmentStatus.pending => (l10n.statusPending, Colors.amber),
       AppointmentStatus.confirmed => (l10n.statusConfirmed, Colors.green),
+      AppointmentStatus.checkedIn => (l10n.statusCheckedIn, Colors.teal),
+      AppointmentStatus.inProgress => (l10n.statusInProgress, Colors.blue),
       AppointmentStatus.cancelled => (l10n.statusCancelled, Colors.red),
       AppointmentStatus.completed => (l10n.statusCompleted, Colors.blueGrey),
       AppointmentStatus.noShow => (l10n.statusNoShow, Colors.orange),
