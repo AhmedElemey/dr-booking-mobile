@@ -66,12 +66,13 @@ The app starts in Arabic (RTL). Use `EdgeInsetsDirectional` and `AlignmentDirect
 
 ## Push notifications and deep links
 
-Firebase projects do not exist yet, so push sits behind `PushService` (`core/push/push_service.dart`) with a no-op default and no Firebase config files in the repo. To wire FCM once the projects exist:
+Push sits behind `PushService` (`core/push/push_service.dart`). `FirebasePushService` (`core/push/firebase_push_service.dart`) is the FCM implementation: `bootstrap` tries `Firebase.initializeApp()` and, when it succeeds, overrides `pushServiceProvider`. Without a Firebase config it fails quietly and the no-op service stays, so the app runs for clinics that have no Firebase project.
 
-1. Add `firebase_core` and `firebase_messaging`, the per-flavor `google-services.json` / `GoogleService-Info.plist`, and call `Firebase.initializeApp` in `bootstrap` (use the dev and prod projects per flavor).
-2. Implement `PushService` on `FirebaseMessaging`: `currentToken` is `getToken()`, `tokenRefreshes` is `onTokenRefresh`, `openedAppointmentIds` merges `onMessageOpenedApp` and `getInitialMessage()` and emits `message.data['appointmentId']`.
-3. Override `pushServiceProvider` with it in `main_dev.dart` / `main_prod.dart`.
+Firebase config is per clinic and is never committed (`.gitignore` lists it):
 
-Push is still a stub (no FCM), so the payloads of the newer message kinds are not handled yet and nothing needs to change until FCM is wired. When it is, the backend sends, besides `{type, appointmentId}`: `waitlist.slot-opened` with `{waitingListEntryId, doctorId, date}` (open `/doctors/{doctorId}/slots`; the backend accepts the id as well as the slug), `review.prompt` with `{appointmentId}` (open `/appointments/{appointmentId}` and show the rate sheet) and `recall` with `{campaignId}` (open home).
+- Android: put the clinic's `google-services.json` in `android/app/`. The Google services Gradle plugin is applied only when that file exists. CI writes it from the `GOOGLE_SERVICES_JSON` repository secret when the secret is set. The file must contain a client for every flavor application id you build (the dev flavor is `<id>.dev`).
+- iOS: `GoogleService-Info.plist` is not wired yet (it waits on the clinic's plist).
+
+The backend sends, besides `{type, appointmentId}`: `waitlist.slot-opened` with `{waitingListEntryId, doctorId, date}` (open `/doctors/{doctorId}/slots`; the backend accepts the id as well as the slug), `review.prompt` with `{appointmentId}` (open `/appointments/{appointmentId}` and show the rate sheet) and `recall` with `{campaignId}` (open home).
 
 `PushRegistrar` already registers the token with `PUT /me/device-tokens` after login and on rotation, and unregisters before logout. The router already opens `/appointments/{id}` when `openedAppointmentIds` emits (guests are sent to login first), which is how a tapped notification lands on the appointment.

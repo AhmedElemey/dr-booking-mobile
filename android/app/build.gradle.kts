@@ -4,6 +4,12 @@ plugins {
     id("dev.flutter.flutter-gradle-plugin")
 }
 
+// Firebase config is per clinic and not committed: apply the plugin only when
+// the clinic's google-services.json is present (CI injects it from a secret).
+if (file("google-services.json").exists()) {
+    apply(plugin = "com.google.gms.google-services")
+}
+
 android {
     namespace = "com.drbooking.app"
     compileSdk = flutter.compileSdkVersion
