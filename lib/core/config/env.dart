@@ -61,14 +61,14 @@ class Env {
   /// Demo mode: fixtures only, no backend needed (lib/main_mock.dart).
   static const mock = Env(
     flavor: AppFlavor.dev,
-    apiBaseUrl: 'https://mock.moonlight.local',
+    apiBaseUrl: 'https://mock.drbooking.local',
     useMockApi: true,
   );
 
   /// The demo build (lib/main_mock.dart): the mock API plus showcase data.
   static const demo = Env(
     flavor: AppFlavor.dev,
-    apiBaseUrl: 'https://mock.moonlight.local',
+    apiBaseUrl: 'https://mock.drbooking.local',
     useMockApi: true,
     demoData: true,
   );
