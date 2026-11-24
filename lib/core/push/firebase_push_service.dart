@@ -42,6 +42,7 @@ class FirebasePushService implements PushService {
   @override
   Future<String?> currentToken() async {
     try {
+      // ignore: deprecated_member_use
       return await _messaging.getToken();
     } catch (e) {
       debugPrint('Push token unavailable ($e)');
@@ -50,6 +51,7 @@ class FirebasePushService implements PushService {
   }
 
   @override
+  // ignore: deprecated_member_use
   Stream<String> get tokenRefreshes => _messaging.onTokenRefresh;
 
   @override
