@@ -7,6 +7,7 @@ import '../../../core/format/clinic_time.dart';
 import '../../../core/config/brand_l10n.dart';
 import '../../../core/l10n/generated/app_localizations.dart';
 import '../../../core/l10n/enum_labels.dart';
+import '../../appointments/domain/appointment.dart';
 import '../../appointments/presentation/appointment_extras.dart';
 import '../../clinic_config/presentation/features_controller.dart';
 import 'booking_providers.dart';
@@ -24,6 +25,7 @@ class BookingSuccessScreen extends ConsumerWidget {
     final appointment = ref.watch(lastBookingProvider);
     final features = ref.watch(featuresProvider);
     if (appointment == null) return const Scaffold();
+    final isPending = appointment.status == AppointmentStatus.pending;
 
     return Scaffold(
       body: SafeArea(
@@ -38,13 +40,17 @@ class BookingSuccessScreen extends ConsumerWidget {
             ),
             const SizedBox(height: 16),
             Text(
-              l10n.bookingConfirmedTitle,
+              isPending
+                  ? l10n.bookingPendingTitle
+                  : l10n.bookingConfirmedTitle,
               textAlign: TextAlign.center,
               style: theme.textTheme.headlineMedium,
             ),
             const SizedBox(height: 8),
             Text(
-              l10n.bookingConfirmedSubtitle,
+              isPending
+                  ? l10n.bookingPendingSubtitle
+                  : l10n.bookingConfirmedSubtitle,
               textAlign: TextAlign.center,
               style: theme.textTheme.bodyLarge,
             ),
