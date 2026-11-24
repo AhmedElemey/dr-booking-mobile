@@ -37,6 +37,7 @@
     }
   },
   "phoneSubtitle": "Enter your mobile number and we will text you a code.",
+  "loginDemoBanner": "Demo environment - everything shown here is synthetic test data.",
   "phoneLabel": "Mobile number",
   "phoneHint": "01012345678",
   "phoneInvalid": "Enter a valid Egyptian mobile number.",
