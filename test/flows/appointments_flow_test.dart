@@ -104,4 +104,35 @@ void main() {
     expect(find.text('Dr. Karim Adel'), findsOneWidget);
     expect(find.byKey(const Key('getDirections')), findsOneWidget);
   });
+
+  testWidgets('a push that arrives while the app is open shows a banner', (
+    tester,
+  ) async {
+    final push = FakePushService();
+    addTearDown(push.foregroundController.close);
+    await pumpMoonlight(
+      tester,
+      overrides: [pushServiceProvider.overrideWithValue(push)],
+    );
+    await _signInAndOpenAppointments(tester);
+
+    push.foregroundController.add(
+      const ForegroundPush(
+        title: 'Reminder',
+        body: 'Tomorrow at 10:30',
+        appointmentId: 'apt-2',
+      ),
+    );
+    await tester.pump();
+    await tester.pumpAndSettle();
+
+    expect(find.text('Reminder: Tomorrow at 10:30'), findsOneWidget);
+
+    await tester.tap(find.text('View'));
+    await pumpUi(tester);
+    await tester.pumpAndSettle();
+
+    expect(find.text('Dr. Karim Adel'), findsOneWidget);
+    expect(find.byKey(const Key('getDirections')), findsOneWidget);
+  });
 }

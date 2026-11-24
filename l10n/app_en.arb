@@ -459,5 +459,6 @@
   "errBookingModeRefused": "This doctor no longer offers video visits. Your visit was switched to in person.",
   "errBookingInsurerRefused": "This doctor does not accept that insurance provider. Choose another or book without insurance.",
   "errBookingMemberRefused": "That family member is no longer available. Pick who the visit is for.",
-  "couldNotOpenAttachment": "Couldn't open the file. Check your connection and try again."
+  "couldNotOpenAttachment": "Couldn't open the file. Check your connection and try again.",
+  "pushViewAction": "View"
 }

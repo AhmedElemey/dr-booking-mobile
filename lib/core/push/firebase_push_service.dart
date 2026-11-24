@@ -65,6 +65,30 @@ class FirebasePushService implements PushService {
         .cast<String>();
   }
 
+  @override
+  Stream<ForegroundPush> get foregroundMessages =>
+      FirebaseMessaging.onMessage.map(
+        (message) => foregroundPushOf(
+          title: message.notification?.title,
+          body: message.notification?.body,
+          data: message.data,
+        ),
+      );
+
+  /// The foreground push for a message's notification text and payload.
+  @visibleForTesting
+  static ForegroundPush foregroundPushOf({
+    String? title,
+    String? body,
+    Map<String, dynamic>? data,
+  }) {
+    return ForegroundPush(
+      title: title,
+      body: body,
+      appointmentId: appointmentIdOf(data),
+    );
+  }
+
   /// The `appointmentId` of a notification payload, or null when it has none.
   @visibleForTesting
   static String? appointmentIdOf(Map<String, dynamic>? data) {
