@@ -8,7 +8,7 @@ Use the CI-pinned Flutter3.47.8 / Dart3.13.7 toolchain:
 flutter pub get
 flutter analyze
 flutter test
-flutter build web --no-wasm-dry-run --optimization-level=1 -t lib/main_prod.dart --dart-define=API_BASE_URL=THE_ACTUAL_HTTPS_BACKEND_ORIGIN
+flutter build web --no-wasm-dry-run --dart2js-optimization O1 -t lib/main_prod.dart --dart-define=API_BASE_URL=THE_ACTUAL_HTTPS_BACKEND_ORIGIN
 ```
 
 Publish only build/web on a free static host with HTTPS and an SPA fallback to index.html. Add the exact mobile-web origin to Backend CORS. API_BASE_URL is public, never a credential. Do not ship a localhost or example URL.
