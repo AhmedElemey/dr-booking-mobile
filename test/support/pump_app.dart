@@ -17,6 +17,7 @@ Future<void> pumpMoonlight(
   String? language = 'en',
   List<Override> overrides = const [],
   bool phase2 = false,
+  Env env = Env.mock,
 }) async {
   tester.view.physicalSize = const Size(780, 1688);
   tester.view.devicePixelRatio = 2;
@@ -27,7 +28,7 @@ Future<void> pumpMoonlight(
   await tester.pumpWidget(
     ProviderScope(
       overrides: [
-        envProvider.overrideWithValue(Env.mock),
+        envProvider.overrideWithValue(env),
         localSettingsProvider.overrideWithValue(LocalSettings(prefs)),
         // The mock API serves all 13 phase 2 features on; most tests want the
         // clinic's defaults (all off) unless they ask for [phase2].

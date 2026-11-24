@@ -8,6 +8,7 @@ class Env {
     required this.apiBaseUrl,
     this.useMockApi = false,
     this.demoData = false,
+    this.hostedTest = false,
   });
 
   final AppFlavor flavor;
@@ -18,6 +19,10 @@ class Env {
 
   /// Demo mode only: extra showcase data (a video visit open to join now).
   final bool demoData;
+
+  /// True only on the hosted test deployment; shows the synthetic-data banner
+  /// on the login screen. Off everywhere else, including real clinic builds.
+  final bool hostedTest;
 
   static const dev = Env(
     flavor: AppFlavor.dev,
@@ -46,7 +51,11 @@ class Env {
         'API_BASE_URL must be an HTTPS origin without credentials, path or query.',
       );
     }
-    return Env(flavor: AppFlavor.prod, apiBaseUrl: uri.origin);
+    return Env(
+      flavor: AppFlavor.prod,
+      apiBaseUrl: uri.origin,
+      hostedTest: const String.fromEnvironment('HOSTED_TEST') == '1',
+    );
   }
 
   /// Demo mode: fixtures only, no backend needed (lib/main_mock.dart).

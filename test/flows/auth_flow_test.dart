@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_test/flutter_test.dart';
 import 'package:moonlight/core/config/brand.g.dart';
+import 'package:moonlight/core/config/env.dart';
 import 'package:moonlight/core/mock/mock_api_adapter.dart';
 import 'package:moonlight/features/auth/data/auth_repository.dart';
 import 'package:moonlight/features/auth/domain/app_user.dart';
@@ -25,6 +26,32 @@ void main() {
       expect(find.text('Welcome to ${Brand.nameEn}'), findsOneWidget);
     },
   );
+
+  testWidgets('demo banner is hidden by default', (tester) async {
+    await pumpMoonlight(tester);
+    await _goToLogin(tester);
+    expect(find.byKey(const Key('demoBanner')), findsNothing);
+  });
+
+  testWidgets('demo banner shows when hostedTest is on', (tester) async {
+    await pumpMoonlight(
+      tester,
+      env: const Env(
+        flavor: AppFlavor.dev,
+        apiBaseUrl: 'https://mock.moonlight.local',
+        useMockApi: true,
+        hostedTest: true,
+      ),
+    );
+    await _goToLogin(tester);
+    expect(find.byKey(const Key('demoBanner')), findsOneWidget);
+    expect(
+      find.text(
+        'Demo environment - everything shown here is synthetic test data.',
+      ),
+      findsOneWidget,
+    );
+  });
 
   testWidgets('a guest redirected to login can leave it without signing in', (
     tester,
