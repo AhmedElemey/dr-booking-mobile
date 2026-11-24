@@ -7,19 +7,19 @@ import 'clinic_features.dart';
 
 /// The clinic this build belongs to.
 abstract final class Brand {
-  static const slug = 'moonlight';
-  static const nameAr = 'مونلايت';
-  static const nameEn = 'Moonlight';
+  static const slug = 'drbooking';
+  static const nameAr = 'دكتور بوكينج';
+  static const nameEn = 'Dr booking';
   static const taglineAr = 'احجز طبيب أسنانك في دقيقة';
   static const taglineEn = 'Book your dentist in a minute';
   static const primary = Color(0xFF3F3CCF);
   static const accent = Color(0xFF0E9F9A);
   static const supportPhone = '+201000000000';
-  static const websiteDomain = 'moonlight.example';
-  static const androidApplicationId = 'com.moonlight.app';
+  static const websiteDomain = 'drbooking.example';
+  static const androidApplicationId = 'com.drbooking.app';
 
   /// Where the payment checkout sends the patient back to the app (`<androidApplicationId>://payment-return`).
-  static const paymentReturnUrl = 'com.moonlight.app://payment-return';
+  static const paymentReturnUrl = 'com.drbooking.app://payment-return';
 
   /// Used until the API answers, and whenever it cannot be reached.
   static const defaultFeatures = ClinicFeatures(
