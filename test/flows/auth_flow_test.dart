@@ -38,7 +38,7 @@ void main() {
       tester,
       env: const Env(
         flavor: AppFlavor.dev,
-        apiBaseUrl: 'https://mock.moonlight.local',
+        apiBaseUrl: 'https://mock.drbooking.local',
         useMockApi: true,
         hostedTest: true,
       ),
