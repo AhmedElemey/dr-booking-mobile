@@ -1,14 +1,14 @@
-# moonlight-mobile
+# drbooking-mobile
 
-Patient app for Moonlight, a dentist reservation platform. Flutter with Riverpod, go_router, Dio and fpdart, organised as `lib/features/<feature>/{data,domain,presentation}`. The product spec lives in [moonlight-backend/docs/SPEC.md](https://github.com/AhmedElemey/moonlight-backend/blob/main/docs/SPEC.md).
+Patient app for Dr booking, a dentist reservation platform. Flutter with Riverpod, go_router, Dio and fpdart, organised as `lib/features/<feature>/{data,domain,presentation}`. The product spec lives in [moonlight-backend/docs/SPEC.md](https://github.com/AhmedElemey/moonlight-backend/blob/main/docs/SPEC.md).
 
 ## Run
 
 ```bash
 flutter pub get
-flutter run --flavor dev -t lib/main_dev.dart     # com.moonlight.app.dev
+flutter run --flavor dev -t lib/main_dev.dart     # com.drbooking.app.dev
 flutter run -d chrome -t lib/main_dev.dart --dart-define=API_BASE_URL=http://localhost:5267   # web against a local API
-flutter run --flavor prod -t lib/main_prod.dart   # com.moonlight.app
+flutter run --flavor prod -t lib/main_prod.dart   # com.drbooking.app
 ```
 
 Demo mode needs no backend: every API call is answered by fixtures (a Cairo clinic, three doctors, a week of open slots, a patient with appointments). Log in with any phone number and code `123456` (`01000000000` signs up a new patient).
@@ -22,12 +22,12 @@ Dev and prod are separate Android flavors, so both installs can coexist. iOS sch
 
 ### Payment return link and the dev flavor
 
-The checkout returns to `<androidApplicationId>://payment-return` (for example `com.moonlight.app://payment-return`), and the backend only accepts a return URL built from the clinic's configured `androidApplicationId`. The application id therefore may not contain `_` (not allowed in a URI scheme; the schema, `tool/apply_brand.dart` and the console all reject it).
+The checkout returns to `<androidApplicationId>://payment-return` (for example `com.drbooking.app://payment-return`), and the backend only accepts a return URL built from the clinic's configured `androidApplicationId`. The application id therefore may not contain `_` (not allowed in a URI scheme; the schema, `tool/apply_brand.dart` and the console all reject it).
 
-The dev flavor installs as `com.moonlight.app.dev` but still registers the production scheme, because the backend allow-list is derived from the clinic config and would refuse `com.moonlight.app.dev://`. Consequences and how to deal with them:
+The dev flavor installs as `com.drbooking.app.dev` but still registers the production scheme, because the backend allow-list is derived from the clinic config and would refuse `com.drbooking.app.dev://`. Consequences and how to deal with them:
 
 - With dev and prod installed side by side, Android may show a chooser when the checkout returns. Pick the build you are testing, or uninstall the other one while testing online payments.
-- To test payments end to end on the dev flavor alone, use a clinic config whose `androidApplicationId` is the dev id (`com.moonlight.app.dev`), run `dart run tool/apply_brand.dart`, and do not commit that config.
+- To test payments end to end on the dev flavor alone, use a clinic config whose `androidApplicationId` is the dev id (`com.drbooking.app.dev`), run `dart run tool/apply_brand.dart`, and do not commit that config.
 - The in-app demo mode (`main_mock.dart`) does not open a checkout and is not affected.
 
 ## Check
