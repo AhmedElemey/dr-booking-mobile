@@ -81,6 +81,7 @@
   "pastTab": "السابقة",
   "noUpcoming": "لا توجد مواعيد قادمة.",
   "noPast": "لا توجد مواعيد سابقة.",
+  "statusPending": "بانتظار التأكيد",
   "statusConfirmed": "مؤكد",
   "statusCancelled": "ملغي",
   "statusCompleted": "مكتمل",
