@@ -17,12 +17,14 @@ enum AppointmentMode {
 }
 
 enum AppointmentStatus {
+  pending,
   confirmed,
   cancelled,
   completed,
   noShow;
 
   static AppointmentStatus parse(String? value) => switch (value) {
+    'Pending' => pending,
     'Cancelled' => cancelled,
     'Completed' => completed,
     'NoShow' => noShow,
@@ -144,6 +146,20 @@ class Appointment {
   bool get isUpcoming =>
       status == AppointmentStatus.confirmed &&
       startsAt.isAfter(DateTime.now().toUtc());
+
+  /// A pending booking that is still ahead of its slot. The clinic has not
+  /// approved it yet; the patient can cancel it freely (no window) but cannot
+  /// reschedule until it is confirmed.
+  bool get isPendingFuture =>
+      status == AppointmentStatus.pending &&
+      startsAt.isAfter(DateTime.now().toUtc());
+
+  /// Whether the UI offers cancel (the server enforces the window for
+  /// confirmed visits; pending visits cancel freely).
+  bool get canCancel => isUpcoming || isPendingFuture;
+
+  /// Whether the UI offers reschedule (confirmed visits only).
+  bool get canReschedule => isUpcoming;
 
   /// Whether the UI offers cancel / reschedule (the server enforces the window).
   bool get canChange => isUpcoming;
