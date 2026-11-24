@@ -40,9 +40,7 @@ class BookingSuccessScreen extends ConsumerWidget {
             ),
             const SizedBox(height: 16),
             Text(
-              isPending
-                  ? l10n.bookingPendingTitle
-                  : l10n.bookingConfirmedTitle,
+              isPending ? l10n.bookingPendingTitle : l10n.bookingConfirmedTitle,
               textAlign: TextAlign.center,
               style: theme.textTheme.headlineMedium,
             ),
