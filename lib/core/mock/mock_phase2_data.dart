@@ -225,7 +225,7 @@ const mockRecords = [
     'أشعة بانوراما',
     null,
     20,
-    attachmentUrl: 'https://mock.moonlight.local/files/panorama.pdf',
+    attachmentUrl: 'https://mock.drbooking.local/files/panorama.pdf',
   ),
   MockRecord(
     'rec-4',
