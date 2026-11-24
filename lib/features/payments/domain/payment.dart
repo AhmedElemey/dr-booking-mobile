@@ -56,12 +56,16 @@ enum AppointmentPaymentStatus {
   unpaid,
   pending,
   paid,
-  refunded;
+  refunded,
+
+  /// Only the booking deposit is paid online; the balance is settled at the clinic.
+  depositPaid;
 
   static AppointmentPaymentStatus parse(String? value) => switch (value) {
     'Pending' => pending,
     'Paid' => paid,
     'Refunded' => refunded,
+    'DepositPaid' => depositPaid,
     _ => unpaid,
   };
 }

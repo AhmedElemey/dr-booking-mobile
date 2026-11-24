@@ -34,6 +34,7 @@ class PriceCard extends ConsumerWidget {
       AppointmentPaymentStatus.paid => Colors.green,
       AppointmentPaymentStatus.pending => Colors.orange,
       AppointmentPaymentStatus.refunded => Colors.blueGrey,
+      AppointmentPaymentStatus.depositPaid => Colors.orange,
       AppointmentPaymentStatus.unpaid => Colors.red,
     };
     return Card(
@@ -73,6 +74,20 @@ class PriceCard extends ConsumerWidget {
               value: l10n.priceEgp(total),
               bold: true,
             ),
+            if (features.onlinePayments &&
+                status == AppointmentPaymentStatus.depositPaid &&
+                appointment.depositPaidEgp > 0) ...[
+              _AmountRow(
+                label: l10n.depositPaidLabel,
+                value: l10n.priceEgp(appointment.depositPaidEgp),
+              ),
+              _AmountRow(
+                label: l10n.balanceAtClinicLabel,
+                value: l10n.priceEgp(
+                  (total - appointment.depositPaidEgp).clamp(0, total),
+                ),
+              ),
+            ],
             if (!features.onlinePayments) ...[
               const SizedBox(height: 8),
               Text(l10n.payAtClinic, style: theme.textTheme.bodySmall),
