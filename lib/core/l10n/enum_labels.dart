@@ -25,6 +25,7 @@ extension EnumLabels on AppLocalizations {
     AppointmentPaymentStatus.pending => payStatusPending,
     AppointmentPaymentStatus.paid => payStatusPaid,
     AppointmentPaymentStatus.refunded => payStatusRefunded,
+    AppointmentPaymentStatus.depositPaid => payStatusDepositPaid,
   };
 
   String insuranceStatusName(InsuranceStatus status) => switch (status) {
