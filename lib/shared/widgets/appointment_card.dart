@@ -99,8 +99,10 @@ class AppointmentCard extends ConsumerWidget {
                     ],
                     if ((features.videoConsultation && appointment.isVideo) ||
                         (features.onlinePayments &&
-                            appointment.paymentStatus ==
-                                AppointmentPaymentStatus.paid)) ...[
+                            (appointment.paymentStatus ==
+                                    AppointmentPaymentStatus.paid ||
+                                appointment.paymentStatus ==
+                                    AppointmentPaymentStatus.depositPaid))) ...[
                       const SizedBox(height: 6),
                       Wrap(
                         spacing: 6,
@@ -119,6 +121,14 @@ class AppointmentCard extends ConsumerWidget {
                             Pill(
                               label: l10n.payStatusPaid,
                               color: Colors.green,
+                            ),
+                          if (features.onlinePayments &&
+                              appointment.paymentStatus ==
+                                  AppointmentPaymentStatus.depositPaid)
+                            Pill(
+                              key: const Key('depositPaidBadge'),
+                              label: l10n.payStatusDepositPaid,
+                              color: Colors.orange,
                             ),
                         ],
                       ),
