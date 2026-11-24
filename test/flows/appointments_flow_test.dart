@@ -124,7 +124,7 @@ void main() {
       ),
     );
     await tester.pump();
-    await tester.pump(const Duration(milliseconds: 300));
+    await tester.pumpAndSettle();
 
     expect(find.text('Reminder: Tomorrow at 10:30'), findsOneWidget);
 
