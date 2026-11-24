@@ -55,6 +55,7 @@ class _MoonlightAppState extends ConsumerState<MoonlightApp>
       ..showSnackBar(
         SnackBar(
           content: Text(text),
+          behavior: SnackBarBehavior.floating,
           action: appointmentId == null
               ? null
               : SnackBarAction(
