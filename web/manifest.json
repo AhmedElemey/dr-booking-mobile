@@ -1,6 +1,6 @@
 {
-    "name": "Moonlight",
-    "short_name": "Moonlight",
+    "name": "Dr booking",
+    "short_name": "Dr booking",
     "start_url": ".",
     "display": "standalone",
     "background_color": "#0175C2",

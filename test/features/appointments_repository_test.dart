@@ -152,7 +152,7 @@ void main() {
   test('calendar link carries the UTC times and the clinic location', () {
     final uri = calendarUri(
       Appointment.fromJson(appointmentJson()),
-      title: 'Moonlight',
+      title: 'Dr booking',
     );
 
     expect(uri.host, 'calendar.google.com');

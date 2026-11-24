@@ -1,4 +1,4 @@
-package com.moonlight.app
+package com.drbooking.app
 
 import io.flutter.embedding.android.FlutterActivity
 

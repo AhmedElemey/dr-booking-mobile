@@ -273,7 +273,7 @@ void main() {
               as String;
       expect(pattern.contains('_'), isFalse);
       final re = RegExp(pattern);
-      expect(re.hasMatch('com.moonlight.app'), isTrue);
+      expect(re.hasMatch('com.drbooking.app'), isTrue);
       expect(re.hasMatch('com.my_clinic.app'), isFalse);
     });
 

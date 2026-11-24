@@ -146,11 +146,11 @@ void main() {
     final payments = PaymentsRepository(dio);
     final checkout = (await payments.pay(
       'a1',
-      returnUrl: 'com.moonlight.app://payment-return',
+      returnUrl: 'com.drbooking.app://payment-return',
     )).toNullable()!;
     expect(checkout.checkoutUrl, 'https://pay/x');
     expect(adapter.requests.last.data, {
-      'returnUrl': 'com.moonlight.app://payment-return',
+      'returnUrl': 'com.drbooking.app://payment-return',
     });
     expect((await payments.get('p1')).toNullable()!.amountEgp, 240);
 

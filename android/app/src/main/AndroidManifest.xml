@@ -30,7 +30,7 @@
                 <action android:name="android.intent.action.VIEW"/>
                 <category android:name="android.intent.category.DEFAULT"/>
                 <category android:name="android.intent.category.BROWSABLE"/>
-                <data android:scheme="com.moonlight.app" android:host="payment-return"/>
+                <data android:scheme="com.drbooking.app" android:host="payment-return"/>
             </intent-filter>
             <!-- end payment-return deep link -->
         </activity>

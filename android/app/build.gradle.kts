@@ -5,7 +5,7 @@ plugins {
 }
 
 android {
-    namespace = "com.moonlight.app"
+    namespace = "com.drbooking.app"
     compileSdk = flutter.compileSdkVersion
     ndkVersion = flutter.ndkVersion
 
@@ -15,7 +15,7 @@ android {
     }
 
     defaultConfig {
-        applicationId = "com.moonlight.app"
+        applicationId = "com.drbooking.app"
         // You can update the following values to match your application needs.
         // For more information, see: https://flutter.dev/to/review-gradle-config.
         minSdk = flutter.minSdkVersion
@@ -28,17 +28,17 @@ android {
         versionName = flutter.versionName
     }
 
-    // dev and prod installs coexist: com.moonlight.app.dev / com.moonlight.app.
+    // dev and prod installs coexist: com.drbooking.app.dev / com.drbooking.app.
     flavorDimensions += "env"
     productFlavors {
         create("dev") {
             dimension = "env"
             applicationIdSuffix = ".dev"
-            manifestPlaceholders["appName"] = "Moonlight Dev"
+            manifestPlaceholders["appName"] = "Dr booking Dev"
         }
         create("prod") {
             dimension = "env"
-            manifestPlaceholders["appName"] = "Moonlight"
+            manifestPlaceholders["appName"] = "Dr booking"
         }
     }
 
