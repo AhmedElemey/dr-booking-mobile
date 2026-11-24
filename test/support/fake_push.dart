@@ -9,6 +9,7 @@ class FakePushService implements PushService {
   String? token;
   final tokenController = StreamController<String>.broadcast();
   final tapController = StreamController<String>.broadcast();
+  final foregroundController = StreamController<ForegroundPush>.broadcast();
   int initializeCalls = 0;
 
   @override
@@ -22,4 +23,7 @@ class FakePushService implements PushService {
 
   @override
   Stream<String> get openedAppointmentIds => tapController.stream;
+
+  @override
+  Stream<ForegroundPush> get foregroundMessages => foregroundController.stream;
 }
