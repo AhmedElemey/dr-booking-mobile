@@ -206,13 +206,13 @@ void main() {
       expect(
         paymentReturnLocation(
           Uri.parse(
-            'com.moonlight.app://payment-return?paymentId=p1&status=paid',
+            'com.drbooking.app://payment-return?paymentId=p1&status=paid',
           ),
         ),
         '/payment-return?paymentId=p1&status=paid',
       );
       expect(paymentReturnLocation(Uri.parse('/doctors')), isNull);
-      expect(Brand.paymentReturnUrl, 'com.moonlight.app://payment-return');
+      expect(Brand.paymentReturnUrl, 'com.drbooking.app://payment-return');
     });
   });
 
