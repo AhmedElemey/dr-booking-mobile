@@ -1,8 +1,8 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
-  "$id": "https://moonlight.example/schemas/clinic.config.schema.json",
+  "$id": "https://drbooking.example/schemas/clinic.config.schema.json",
   "title": "Clinic configuration",
-  "description": "A clinic's identity and default feature switches. Shared by every Moonlight repo.",
+  "description": "A clinic's identity and default feature switches. Shared by every Dr booking repo.",
   "type": "object",
   "additionalProperties": false,
   "required": [
