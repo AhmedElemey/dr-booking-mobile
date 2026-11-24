@@ -19,12 +19,16 @@ enum AppointmentMode {
 enum AppointmentStatus {
   pending,
   confirmed,
+  checkedIn,
+  inProgress,
   cancelled,
   completed,
   noShow;
 
   static AppointmentStatus parse(String? value) => switch (value) {
     'Pending' => pending,
+    'CheckedIn' => checkedIn,
+    'InProgress' => inProgress,
     'Cancelled' => cancelled,
     'Completed' => completed,
     'NoShow' => noShow,
