@@ -31,4 +31,13 @@ jobs:
         run: git diff --exit-code
       - run: flutter analyze
       - run: flutter test
+      # The clinic's Firebase config is a secret-held file, never committed. Without
+      # the secret the build still works and push stays off.
+      - name: Firebase config
+        env:
+          GOOGLE_SERVICES_JSON: ${{ secrets.GOOGLE_SERVICES_JSON }}
+        run: |
+          if [ -n "$GOOGLE_SERVICES_JSON" ]; then
+            printf '%s' "$GOOGLE_SERVICES_JSON" > android/app/google-services.json
+          fi
       - run: flutter build apk --debug --flavor dev -t lib/main_dev.dart
