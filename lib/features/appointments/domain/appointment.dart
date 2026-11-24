@@ -82,6 +82,7 @@ class Appointment {
     this.discountEgp = 0,
     this.totalEgp,
     this.paymentStatus = AppointmentPaymentStatus.unpaid,
+    this.depositPaidEgp = 0,
     this.insurance,
     this.canReview = false,
     this.review,
@@ -116,6 +117,9 @@ class Appointment {
   final num discountEgp;
   final num? totalEgp;
   final AppointmentPaymentStatus paymentStatus;
+
+  /// The part of the price paid online as a booking deposit.
+  final num depositPaidEgp;
   final AppointmentInsurance? insurance;
   final bool canReview;
   final AppointmentReview? review;
@@ -199,6 +203,7 @@ class Appointment {
       paymentStatus: AppointmentPaymentStatus.parse(
         json['paymentStatus'] as String?,
       ),
+      depositPaidEgp: (json['depositPaidEgp'] as num?) ?? 0,
       insurance: json['insurance'] is Map<String, dynamic>
           ? AppointmentInsurance.fromJson(
               json['insurance'] as Map<String, dynamic>,
