@@ -134,6 +134,7 @@
   "pastTab": "Past",
   "noUpcoming": "No upcoming appointments.",
   "noPast": "No past appointments.",
+  "statusPending": "Pending",
   "statusConfirmed": "Confirmed",
   "statusCancelled": "Cancelled",
   "statusCompleted": "Completed",
