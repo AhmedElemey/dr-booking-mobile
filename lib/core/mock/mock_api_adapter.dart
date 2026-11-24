@@ -313,7 +313,7 @@ class MockApiAdapter implements HttpClientAdapter {
       return _json(result.$1, result.$2);
     } on _MockError catch (e) {
       return _json(e.status, {
-        'type': 'https://moonlight.example/errors/${e.code.toLowerCase()}',
+        'type': 'https://drbooking.example/errors/${e.code.toLowerCase()}',
         'title': e.code,
         'status': e.status,
         'code': e.code,
@@ -1238,7 +1238,7 @@ class MockApiAdapter implements HttpClientAdapter {
     return {
       'paymentId': payment.id,
       'checkoutUrl':
-          'https://mock.moonlight.local/api/v1/payments/mock-checkout/${payment.id}',
+          'https://mock.drbooking.local/api/v1/payments/mock-checkout/${payment.id}',
     };
   }
 
@@ -1278,7 +1278,7 @@ class MockApiAdapter implements HttpClientAdapter {
       );
     }
     return {
-      'joinUrl': 'https://meet.jit.si/moonlight-${apt.id}-k3x9q7',
+      'joinUrl': 'https://meet.jit.si/drbooking-${apt.id}-k3x9q7',
       'opensAt': _iso(opens),
       'closesAt': _iso(closes),
     };
